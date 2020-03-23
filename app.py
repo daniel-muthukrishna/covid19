@@ -377,39 +377,41 @@ def update_infections_plot(n_clicks, start_date, end_date, *args):
             lin_yfit = np.exp(logA) * np.exp(b * model_xdata)
 
             fig_linear.append(go.Scatter(x=date_objects,
-                                  y=ydata,
-                                  mode='lines+markers',
-                                  marker={'color': colours[i]},
-                                  line={'color': colours[i]},
-                                  showlegend=True,
-                                  name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
-                                  yaxis='y1',
-                                  legendgroup='group1', ))
+                                         y=ydata,
+                                         mode='lines+markers',
+                                         marker={'color': colours[i]},
+                                         line={'color': colours[i]},
+                                         showlegend=True,
+                                         name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
+                                         yaxis='y1',
+                                         legendgroup='group1', ))
             fig_linear.append(go.Scatter(x=model_dates,
-                                  y=lin_yfit,
-                                  mode='lines',
-                                  line={'color': colours[i], 'dash': 'dash'},
-                                  showlegend=False,
-                                  yaxis='y1',
-                                  legendgroup='group1', ))
+                                         y=lin_yfit,
+                                         mode='lines',
+                                         line={'color': colours[i], 'dash': 'dash'},
+                                         showlegend=False,
+                                         name=fr'{c.upper():<10s} model',
+                                         yaxis='y1',
+                                         legendgroup='group1', ))
 
 
             fig_log.append(go.Scatter(x=date_objects,
-                                  y=ydata,
-                                  mode='lines+markers',
-                                  marker={'color': colours[i]},
-                                  line={'color': colours[i]},
-                                  showlegend=True,
-                                  name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
-                                  yaxis='y1',
-                                  legendgroup='group1', ))
+                                      y=ydata,
+                                      mode='lines+markers',
+                                      marker={'color': colours[i]},
+                                      line={'color': colours[i]},
+                                      showlegend=True,
+                                      name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
+                                      yaxis='y1',
+                                      legendgroup='group1', ))
             fig_log.append(go.Scatter(x=model_dates,
-                                  y=lin_yfit,
-                                  mode='lines',
-                                  line={'color': colours[i], 'dash': 'dash'},
-                                  showlegend=False,
-                                  yaxis='y1',
-                                  legendgroup='group1', ))
+                                      y=lin_yfit,
+                                      mode='lines',
+                                      line={'color': colours[i], 'dash': 'dash'},
+                                      showlegend=False,
+                                      name=fr'{c.upper():<10s} model',
+                                      yaxis='y1',
+                                      legendgroup='group1', ))
         out.append({'data': fig_linear, 'layout': layout_linear})
         out.append({'data': fig_log, 'layout': layout_log})
 
