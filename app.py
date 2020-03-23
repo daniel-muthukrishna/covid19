@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import colors as mcolors
 import datetime
 
-from backend import get_data
+from get_data import get_data
 
 colours = ['green', 'orange', 'red', 'blue', 'purple', 'pink', 'brown', 'cyan',
            'olive', '#FF1493', 'navy', '#aaffc3', 'lightcoral', '#228B22', '#aa6e28', '#FFA07A',
