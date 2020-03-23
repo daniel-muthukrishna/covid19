@@ -84,73 +84,73 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
             ),
             dcc.Checklist(
                 id='germany',
-                options=[{'label': "germany", 'value': 'germany'}],
+                options=[{'label': "Germany", 'value': 'germany'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='iran',
-                options=[{'label': "iran", 'value': 'iran'}],
+                options=[{'label': "Iran", 'value': 'iran'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='france',
-                options=[{'label': "france", 'value': 'france'}],
+                options=[{'label': "France", 'value': 'france'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='ireland',
-                options=[{'label': "ireland", 'value': 'ireland'}],
+                options=[{'label': "Ireland", 'value': 'ireland'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='china',
-                options=[{'label': "china", 'value': 'china'}],
+                options=[{'label': "China", 'value': 'china'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='south-korea',
-                options=[{'label': "south-korea", 'value': 'south-korea'}],
+                options=[{'label': "South Korea", 'value': 'south-korea'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='switzerland',
-                options=[{'label': "switzerland", 'value': 'switzerland'}],
+                options=[{'label': "Switzerland", 'value': 'switzerland'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='netherlands',
-                options=[{'label': "netherlands", 'value': 'netherlands'}],
+                options=[{'label': "Netherlands", 'value': 'netherlands'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='austria',
-                options=[{'label': "austria", 'value': 'austria'}],
+                options=[{'label': "Austria", 'value': 'austria'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='belgium',
-                options=[{'label': "belgium", 'value': 'belgium'}],
+                options=[{'label': "Belgium", 'value': 'belgium'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='norway',
-                options=[{'label': "norway", 'value': 'norway'}],
+                options=[{'label': "Norway", 'value': 'norway'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='sweden',
-                options=[{'label': "sweden", 'value': 'sweden'}],
+                options=[{'label': "Sweden", 'value': 'sweden'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
@@ -162,67 +162,67 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
             ),
             dcc.Checklist(
                 id='brazil',
-                options=[{'label': "brazil", 'value': 'brazil'}],
+                options=[{'label': "Brazil", 'value': 'brazil'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='canada',
-                options=[{'label': "canada", 'value': 'canada'}],
+                options=[{'label': "Canada", 'value': 'canada'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='denmark',
-                options=[{'label': "denmark", 'value': 'denmark'}],
+                options=[{'label': "Denmark", 'value': 'denmark'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='malaysia',
-                options=[{'label': "malaysia", 'value': 'malaysia'}],
+                options=[{'label': "Malaysia", 'value': 'malaysia'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='poland',
-                options=[{'label': "poland", 'value': 'poland'}],
+                options=[{'label': "Poland", 'value': 'poland'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='greece',
-                options=[{'label': "greece", 'value': 'greece'}],
+                options=[{'label': "Greece", 'value': 'greece'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='indonesia',
-                options=[{'label': "indonesia", 'value': 'indonesia'}],
+                options=[{'label': "Indonesia", 'value': 'indonesia'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='philippines',
-                options=[{'label': "philippines", 'value': 'dphilippinesummy'}],
+                options=[{'label': "Philippines", 'value': 'philippines'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='china-hong-kong-sar',
-                options=[{'label': "hong kong", 'value': 'dchina-hong-kong-sarummy'}],
+                options=[{'label': "Hong Kong", 'value': 'china-hong-kong-sar'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='iraq',
-                options=[{'label': "iraq", 'value': 'iraq'}],
+                options=[{'label': "Iraq", 'value': 'iraq'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
                 id='algeria',
-                options=[{'label': "algeria", 'value': 'algeria'}],
+                options=[{'label': "Algeria", 'value': 'algeria'}],
                 value=[],
                 style={"margin-left": "15px", }
             ),
