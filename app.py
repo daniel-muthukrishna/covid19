@@ -7,13 +7,15 @@ import plotly.graph_objs as go
 from urllib.request import urlopen
 import numpy as np
 from matplotlib import colors as mcolors
-
+import datetime
 
 from backend import get_data
 
 colours = ['green', 'orange', 'red', 'blue', 'purple', 'pink', 'brown', 'cyan',
            'olive', '#FF1493', 'navy', '#aaffc3', 'lightcoral', '#228B22', '#aa6e28', '#FFA07A',
            ] + list(mcolors.CSS4_COLORS.keys())
+monthsdict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+              'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
 base_url = 'https://www.worldometers.info/coronavirus/country/'
 
@@ -227,18 +229,16 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
                 style={"margin-left": "15px", }
             ),
 
-            html.I("Lookback time:", style={'textAlign': 'center', 'color': colors['text'], "margin-left": "15px",}),
-            dcc.Input(
-                id='lookback-time',
-                placeholder='Lookback time for model (in days)',
-                value='-10',
-                style={
-                    'width': '70%',
-                    'height': '20px',
-                    "lineHeight": "20px",
-                    "margin-left": "15px",
-                },
+            html.I("Model date range:", style={'textAlign': 'center', 'color': colors['text'], "margin-left": "15px",}),
+            dcc.DatePickerRange(
+                id='date-range',
+                min_date_allowed=datetime.date(2020, 1, 22),
+                max_date_allowed=datetime.date(2022, 1, 1),
+                initial_visible_month=datetime.date.today() - datetime.timedelta(days=7),
+                start_date=datetime.date.today() - datetime.timedelta(days=7),
+                end_date=datetime.date.today(),
             ),
+            html.Hr(),
         ], style={'width': '15%', 'display': 'inline-block', 'vertical-align': 'top'}),
             html.Div([
                 dcc.Tabs([
@@ -251,7 +251,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
                         dcc.Graph(id='deaths-log'),
                     ]),
                 ]),
-            ], style={'width': '80%', 'display': 'inline-block', 'vertical-align': 'top'}),
+            ], style={'width': '84%', 'display': 'inline-block', 'vertical-align': 'top'}),
         html.Hr(),
         html.Footer("Author: Daniel Muthukrishna. Data is taken from https://www.worldometers.info/coronavirus/",
                     style={'textAlign': 'center', 'color': colors['text']}),
@@ -264,7 +264,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
                Output('deaths-linear', 'figure'),
                Output('deaths-log', 'figure')],
               [Input('button-plot', 'n_clicks')],
-              [State('lookback-time', 'value'),
+              [State('date-range', 'start_date'),
+               State('date-range', 'end_date'),
                State('australia', 'value'),
                State('uk', 'value'),
                State('us', 'value'),
@@ -294,8 +295,11 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
                State('china-hong-kong-sar', 'value'),
                State('iraq', 'value'),
                State('algeria', 'value')])
-def update_infections_plot(n_clicks, lookback_time, *args):
-    print(n_clicks, lookback_time, args)
+def update_infections_plot(n_clicks, start_date, end_date, *args):
+    print(n_clicks, start_date, end_date, args)
+    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
+    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
+
     country_names = []
     for country in args:
         country_names.extend(country)
@@ -343,19 +347,36 @@ def update_infections_plot(n_clicks, lookback_time, *args):
         }
 
         for i, c in enumerate(country_names):
-            print(c)
             title_index = country_data[c]['titles'].index(title)
             dates = country_data[c]['dates']
             xdata = np.arange(len(dates))
             ydata = country_data[c]['data'][title_index]
             ydata = np.array(ydata).astype('float')
 
-            sidx = int(lookback_time)
-            b, logA = np.polyfit(xdata[sidx:], np.log(ydata[sidx:]), 1)
-            log_yfit = b * xdata[sidx:] + logA
-            lin_yfit = np.exp(logA) * np.exp(b * xdata[sidx:])
+            date_objects = []
+            for date in dates:
+                month, day = date.split()
+                date_objects.append(datetime.date(year=2020, month=monthsdict[month], day=int(day)))
+            date_objects = np.asarray(date_objects)
 
-            fig_linear.append(go.Scatter(x=dates,
+            model_date_mask = (date_objects <= end_date) & (date_objects >= start_date)
+
+            model_dates = []
+            model_xdata = []
+            date = start_date
+            d_idx = min(xdata[model_date_mask])
+            while date <= end_date:
+                model_dates.append(date)
+                model_xdata.append(d_idx)
+                date += datetime.timedelta(days=1)
+                d_idx += 1
+            model_xdata = np.array(model_xdata)
+
+            b, logA = np.polyfit(xdata[model_date_mask], np.log(ydata[model_date_mask]), 1)
+            # log_yfit = b * xdata[model_date_mask] + logA
+            lin_yfit = np.exp(logA) * np.exp(b * model_xdata)
+
+            fig_linear.append(go.Scatter(x=date_objects,
                                   y=ydata,
                                   mode='lines+markers',
                                   marker={'color': colours[i]},
@@ -364,7 +385,7 @@ def update_infections_plot(n_clicks, lookback_time, *args):
                                   name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
                                   yaxis='y1',
                                   legendgroup='group1', ))
-            fig_linear.append(go.Scatter(x=dates[sidx:],
+            fig_linear.append(go.Scatter(x=model_dates,
                                   y=lin_yfit,
                                   mode='lines',
                                   line={'color': colours[i], 'dash': 'dash'},
@@ -373,7 +394,7 @@ def update_infections_plot(n_clicks, lookback_time, *args):
                                   legendgroup='group1', ))
 
 
-            fig_log.append(go.Scatter(x=dates,
+            fig_log.append(go.Scatter(x=date_objects,
                                   y=ydata,
                                   mode='lines+markers',
                                   marker={'color': colours[i]},
@@ -382,7 +403,7 @@ def update_infections_plot(n_clicks, lookback_time, *args):
                                   name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
                                   yaxis='y1',
                                   legendgroup='group1', ))
-            fig_log.append(go.Scatter(x=dates[sidx:],
+            fig_log.append(go.Scatter(x=model_dates,
                                   y=lin_yfit,
                                   mode='lines',
                                   line={'color': colours[i], 'dash': 'dash'},
