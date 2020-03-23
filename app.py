@@ -155,7 +155,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, id='outpu
                 style={"margin-left": "15px", }
             ),
             dcc.Checklist(
-                id='portugal',
+                id='Portugal',
                 options=[{'label': "portugal", 'value': 'portugal'}],
                 value=[],
                 style={"margin-left": "15px", }
