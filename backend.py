@@ -1,4 +1,5 @@
 
+
 def get_data(webpage):
     dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').split(',')
 
