@@ -390,7 +390,7 @@ def update_infections_plot(n_clicks, start_date, end_date, *args):
                                          mode='lines',
                                          line={'color': colours[i], 'dash': 'dash'},
                                          showlegend=False,
-                                         name=fr'{c.upper():<10s} model',
+                                         name=fr'Model {c.upper():<10s}',
                                          yaxis='y1',
                                          legendgroup='group1', ))
 
@@ -409,7 +409,7 @@ def update_infections_plot(n_clicks, start_date, end_date, *args):
                                       mode='lines',
                                       line={'color': colours[i], 'dash': 'dash'},
                                       showlegend=False,
-                                      name=fr'{c.upper():<10s} model',
+                                      name=fr'Model {c.upper():<10s}',
                                       yaxis='y1',
                                       legendgroup='group1', ))
         out.append({'data': fig_linear, 'layout': layout_linear})
