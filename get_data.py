@@ -1,4 +1,10 @@
 
+COUNTRY_LIST = ['australia', 'uk', 'us', 'italy', 'spain', 'germany', 'iran',
+                'france', 'ireland', 'china', 'south-korea', 'switzerland', 'netherlands',
+                'austria', 'belgium', 'norway', 'sweden', 'portugal', 'brazil', 'canada',
+                'denmark', 'malaysia', 'poland', 'greece', 'indonesia', 'philippines',
+                'china-hong-kong-sar', 'iraq', 'algeria']
+
 
 def get_data(webpage):
     dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').split(',')
