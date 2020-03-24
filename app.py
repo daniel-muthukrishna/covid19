@@ -36,6 +36,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
         style={
             'textAlign': 'center',
             'color': colors['text'],
+            'margin-top': '17px'
         }
     ),
     html.Hr(),
@@ -292,13 +293,15 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             ),
             dcc.Tabs([
                  dcc.Tab(label='linear', children=[
-                    html.H3(children='Total Cases' ,style={'textAlign': 'center', 'color': colors['text']}),
+                    html.H3(children='Total Cases' ,style={'textAlign': 'center', 'color': colors['text'],
+                                                           'margin-top': '30px'}),
                     dcc.Graph(id='infections-linear'),
                     html.H3(children='Total Deaths',style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-linear'),
                     ]),
                 dcc.Tab(label='log', children=[
-                    html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                    html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text'],
+                                                           'margin-top': '30px'}),
                     dcc.Graph(id='infections-log'),
                     html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-log'),
