@@ -281,7 +281,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
         html.Div(id='hidden-stored-data', style={'display': 'none'}),
         html.Footer(["Author: Daniel Muthukrishna. Data is taken from ",
                      html.A('https://www.worldometers.info/coronavirus/.', href='https://www.worldometers.info/coronavirus/'),
-                     " ", html.A('Source code', href='https://github.com/daniel-muthukrishna/covid19.')],
+                     " ", html.A('Source code', href='https://github.com/daniel-muthukrishna/covid19')],
                     style={'textAlign': 'center', 'color': colors['text']}),
     ], style={'horizontal-align': 'center', 'textAlign': 'center'}),
 ])
