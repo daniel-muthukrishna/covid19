@@ -418,7 +418,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
                                       name=fr'Best exponential fits',
                                       yaxis='y1',
                                       legendgroup='group2', ))
-                label = fr'COUNTRY : best fit (double time)'
+                label = fr'COUNTRY : best fit (doubling time)'
             else:
                 label = fr'COUNTRY'
             fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
