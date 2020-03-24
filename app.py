@@ -260,7 +260,13 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     style={'textAlign': 'center'}
                 ),
             ], style={'display': 'inline-block', 'horizontal-align': 'center', 'textAlign': 'center',
-                      "margin-bottom": "20px",}),
+                      "margin-bottom": "15px",}),
+            dcc.Checklist(
+                id='show-exponential-check',
+                options=[{'label': "Show exponential fits?", 'value': 'exponential'}],
+                value=['exponential'],
+                style={'textAlign': 'center', "margin-bottom": "20px"}
+            ),
             dcc.Tabs([
                  dcc.Tab(label='linear', children=[
                     html.H2(children='Total Cases' ,style={'textAlign': 'center','color': colors['text']}),
@@ -293,7 +299,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('deaths-log', 'figure')],
               [Input('button-plot', 'n_clicks'),
                Input('start-date', 'date'),
-               Input('end-date', 'date')],
+               Input('end-date', 'date'),
+               Input('show-exponential-check', 'value')],
               [State('australia', 'value'),
                State('uk', 'value'),
                State('us', 'value'),
@@ -323,7 +330,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                State('china-hong-kong-sar', 'value'),
                State('iraq', 'value'),
                State('algeria', 'value')])
-def update_plots(n_clicks, start_date, end_date, *args):
+def update_plots(n_clicks, start_date, end_date, show_exponential, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -373,20 +380,24 @@ def update_plots(n_clicks, start_date, end_date, *args):
             'showlegend': True,
         }
         for fig in [fig_linear, fig_log]:
-            fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
-                                  y=[0],
-                                  mode='lines',
-                                  line={'color': 'black', 'dash': 'dash'},
-                                  showlegend=True,
-                                  name=fr'Best exponential fits',
-                                  yaxis='y1',
-                                  legendgroup='group2', ))
+            if show_exponential:
+                fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
+                                      y=[0],
+                                      mode='lines',
+                                      line={'color': 'black', 'dash': 'dash'},
+                                      showlegend=True,
+                                      name=fr'Best exponential fits',
+                                      yaxis='y1',
+                                      legendgroup='group2', ))
+                label = fr'COUNTRY'
+            else:
+                label = fr'COUNTRY : best fit (double time)'
             fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
                                   y=[0],
                                   mode='lines+markers',
                                   line={'color': 'black'},
                                   showlegend=True,
-                                  name=fr'COUNTRY : best fit (double time)',
+                                  name=label,
                                   yaxis='y1',
                                   legendgroup='group2', ))
 
@@ -420,6 +431,10 @@ def update_plots(n_clicks, start_date, end_date, *args):
             # log_yfit = b * xdata[model_date_mask] + logA
             lin_yfit = np.exp(logA) * np.exp(b * model_xdata)
 
+            if show_exponential:
+                label = fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)'
+            else:
+                label =fr'{c.upper():<10s}'
             for fig in [fig_linear, fig_log]:
                 fig.append(go.Scatter(x=date_objects,
                                       y=ydata,
@@ -427,17 +442,18 @@ def update_plots(n_clicks, start_date, end_date, *args):
                                       marker={'color': colours[i]},
                                       line={'color': colours[i]},
                                       showlegend=True,
-                                      name=fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({np.log(2) / b:.1f} days to double)',
+                                      name=label,
                                       yaxis='y1',
                                       legendgroup='group1', ))
-                fig.append(go.Scatter(x=model_dates,
-                                      y=lin_yfit,
-                                      mode='lines',
-                                      line={'color': colours[i], 'dash': 'dash'},
-                                      showlegend=False,
-                                      name=fr'Model {c.upper():<10s}',
-                                      yaxis='y1',
-                                      legendgroup='group1', ))
+                if show_exponential:
+                    fig.append(go.Scatter(x=model_dates,
+                                          y=lin_yfit,
+                                          mode='lines',
+                                          line={'color': colours[i], 'dash': 'dash'},
+                                          showlegend=False,
+                                          name=fr'Model {c.upper():<10s}',
+                                          yaxis='y1',
+                                          legendgroup='group1', ))
 
         out.append({'data': fig_linear, 'layout': layout_linear})
         out.append({'data': fig_log, 'layout': layout_log})
