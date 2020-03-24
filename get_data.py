@@ -7,7 +7,7 @@ COUNTRY_LIST = ['australia', 'uk', 'us', 'italy', 'spain', 'germany', 'iran',
 
 
 def get_data(webpage):
-    dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').split(',')
+    dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').replace('},', '').replace('},', '').replace('  ', '').split(',')
 
     names = []
     data = []

@@ -380,7 +380,7 @@ def update_plots(n_clicks, start_date, end_date, *args):
                                   showlegend=True,
                                   name=fr'Best exponential fits',
                                   yaxis='y1',
-                                  legendgroup='group1', ))
+                                  legendgroup='group2', ))
             fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
                                   y=[0],
                                   mode='lines+markers',
@@ -388,7 +388,7 @@ def update_plots(n_clicks, start_date, end_date, *args):
                                   showlegend=True,
                                   name=fr'COUNTRY : best fit (double time)',
                                   yaxis='y1',
-                                  legendgroup='group1', ))
+                                  legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
             title_index = country_data[c]['titles'].index(title)
@@ -399,7 +399,7 @@ def update_plots(n_clicks, start_date, end_date, *args):
 
             date_objects = []
             for date in dates:
-                month, day = date.split()[0:2]
+                month, day = date.split()
                 date_objects.append(datetime.date(year=2020, month=monthsdict[month], day=int(day)))
             date_objects = np.asarray(date_objects)
 
