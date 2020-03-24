@@ -389,9 +389,9 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, *args):
                                       name=fr'Best exponential fits',
                                       yaxis='y1',
                                       legendgroup='group2', ))
-                label = fr'COUNTRY'
-            else:
                 label = fr'COUNTRY : best fit (double time)'
+            else:
+                label = fr'COUNTRY'
             fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
                                   y=[0],
                                   mode='lines+markers',
