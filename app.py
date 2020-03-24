@@ -57,7 +57,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                        'height': '30px', 'font-size': '20px', 'border': 'None', 'border-radius': '10px'}
             ),
             html.I("Select countries of interest, then click the Plot button above.",
-                   style={'textAlign': 'center', 'color': colors['text']}),
+                   style={'textAlign': 'center', 'color': colors['text'],
+                          "margin-left": "15px", "margin-right": "15px"}),
             dcc.Checklist(
                 id='australia',
                 options=[{'label': "Australia", 'value': 'australia'}],
