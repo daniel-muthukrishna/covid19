@@ -20,15 +20,6 @@ monthsdict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
 
 base_url = 'https://www.worldometers.info/coronavirus/country/'
 
-popular_countries_data = {}
-for i, country in enumerate(['australia', 'uk', 'us', 'italy', 'china']):
-    print(country)
-    url = base_url + country
-    f = urlopen(url)
-    webpage = f.read()
-    dates, names, data = get_data(webpage)
-    popular_countries_data[country] = {'dates': dates, 'titles': names, 'data': data}
-
 app = dash.Dash(__name__)
 server = app.server
 
@@ -297,12 +288,14 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
 @app.callback([Output('infections-linear', 'figure'),
                Output('infections-log', 'figure'),
                Output('deaths-linear', 'figure'),
-               Output('deaths-log', 'figure')],
+               Output('deaths-log', 'figure'),
+               Output('hidden-stored-data', 'children')],
               [Input('button-plot', 'n_clicks'),
                Input('start-date', 'date'),
                Input('end-date', 'date'),
                Input('show-exponential-check', 'value')],
-              [State('australia', 'value'),
+              [State('hidden-stored-data', 'children'),
+               State('australia', 'value'),
                State('uk', 'value'),
                State('us', 'value'),
                State('italy', 'value'),
@@ -331,7 +324,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                State('china-hong-kong-sar', 'value'),
                State('iraq', 'value'),
                State('algeria', 'value')])
-def update_plots(n_clicks, start_date, end_date, show_exponential, *args):
+def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -340,7 +333,11 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, *args):
     for country in args:
         country_names.extend(country)
 
-    country_data = copy.copy(popular_countries_data)
+    if saved_json_data is None:
+        country_data = {}
+    else:
+        country_data = json.loads(saved_json_data)
+
     for i, country in enumerate(country_names):
         if country not in country_data.keys():
             url = base_url + country
@@ -458,6 +455,8 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, *args):
 
         out.append({'data': fig_linear, 'layout': layout_linear})
         out.append({'data': fig_log, 'layout': layout_log})
+
+    out.append(json.dumps(country_data))
 
     return out
 
