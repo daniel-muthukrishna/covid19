@@ -11,6 +11,7 @@ import datetime
 import json
 import copy
 
+
 from get_data import get_data
 
 colours = ['green', 'orange', 'blue', 'purple', 'pink', 'brown', 'cyan', 'red',
@@ -21,7 +22,8 @@ monthsdict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
 
 base_url = 'https://www.worldometers.info/coronavirus/country/'
 
-app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
+app = dash.Dash(__name__)
+# app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
 colors = {
