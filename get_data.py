@@ -1,3 +1,4 @@
+from urllib.request import urlopen
 
 COUNTRY_LIST = ['australia', 'uk', 'us', 'italy', 'spain', 'germany', 'iran',
                 'france', 'ireland', 'china', 'south-korea', 'switzerland', 'netherlands',
@@ -28,3 +29,16 @@ def get_data(webpage):
                 break
 
     return dates, names, data
+
+
+if __name__ == '__main__':
+    base_url = 'https://www.worldometers.info/coronavirus/country/'
+
+    country_data = {}
+    for i, country in enumerate(COUNTRY_LIST):
+        url = base_url + country
+        f = urlopen(url)
+        webpage = f.read()
+
+        dates, names, data = get_data(webpage)
+        country_data[country] = {'dates': dates, 'titles': names, 'data': data}
