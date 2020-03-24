@@ -31,7 +31,7 @@ colors = {
 
 app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-family': 'sans-serif'},
                       id='output-layout', children=[
-    html.H1(
+    html.H2(
         children='COVID-19 Cases and Deaths',
         style={
             'textAlign': 'center',
