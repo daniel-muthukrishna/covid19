@@ -373,7 +373,7 @@ def update_plots(n_clicks, start_date, end_date, *args):
             'showlegend': True,
         }
         for fig in [fig_linear, fig_log]:
-            fig.append(go.Scatter(x=[datetime.date.today()],
+            fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
                                   y=[0],
                                   mode='lines',
                                   line={'color': 'black', 'dash': 'dash'},
