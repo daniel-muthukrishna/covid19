@@ -19,8 +19,6 @@ colours = ['green', 'orange', 'blue', 'purple', 'pink', 'brown', 'cyan', 'red',
 monthsdict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
               'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
-base_url = 'https://www.worldometers.info/coronavirus/country/'
-
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
@@ -380,10 +378,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
 
     for i, country in enumerate(country_names):
         if country not in country_data.keys():
-            url = base_url + country
-            f = urlopen(url)
-            webpage = f.read()
-            dates, names, data = get_data(webpage)
+            dates, names, data = get_data(country)
             country_data[country] = {'dates': dates, 'titles': names, 'data': data}
 
     out = []
