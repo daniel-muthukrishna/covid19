@@ -321,7 +321,6 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
                                   legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
-            print(c)
             if title not in country_data[c]:
                 continue
             if country_data[c] is None:
