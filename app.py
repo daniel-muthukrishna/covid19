@@ -4,21 +4,104 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import plotly.graph_objs as go
-from urllib.request import urlopen
 import numpy as np
 from matplotlib import colors as mcolors
 import datetime
 import json
-import copy
 
 from get_data import get_data
 
 colours = ['green', 'orange', 'blue', 'purple', 'pink', 'brown', 'cyan', 'red',
            'olive', '#FF1493', 'navy', '#aaffc3', 'lightcoral', '#228B22', '#aa6e28', '#FFA07A',
            ] + list(mcolors.CSS4_COLORS.keys())
-monthsdict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-              'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
+COUNTRY_LIST = ['uk',
+                'us',
+                'italy',
+                'spain',
+                'germany',
+                'iran',
+                'france',
+                'australia',
+                'albania',
+                'algeria',
+                'andorra',
+                'argentina',
+                'armenia',
+                'austria',
+                'bahrain',
+                'belgium',
+                'bosnia and herzegovina',
+                'brazil',
+                'brunei',
+                'bulgaria',
+                'burkina faso',
+                'canada',
+                'chile',
+                'china',
+                'colombia',
+                'costa rica',
+                'croatia',
+                'cyprus',
+                'czechia',
+                'denmark',
+                'dominican republic',
+                'ecuador',
+                'egypt',
+                'estonia',
+                'finland',
+                'greece',
+                'hungary',
+                'iceland',
+                'india',
+                'indonesia',
+                'iraq',
+                'ireland',
+                'israel',
+                'japan',
+                'jordan',
+                'kuwait',
+                'latvia',
+                'lebanon',
+                'lithuania',
+                'luxembourg',
+                'malaysia',
+                'malta',
+                'mexico',
+                'moldova',
+                'morocco',
+                'netherlands',
+                'new zealand',
+                'north macedonia',
+                'norway',
+                'pakistan',
+                'panama',
+                'peru',
+                'philippines',
+                'poland',
+                'portugal',
+                'qatar',
+                'romania',
+                'russia',
+                'south-korea',
+                'san marino',
+                'saudi arabia',
+                'serbia',
+                'singapore',
+                'slovakia',
+                'slovenia',
+                'south africa',
+                'sri lanka',
+                'sweden',
+                'switzerland',
+                'taiwan',
+                'thailand',
+                'tunisia',
+                'turkey',
+                'united arab emirates',
+                'ukraine',
+                'uruguay',
+                'vietnam',]
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
@@ -50,209 +133,16 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             html.I("Select countries of interest, then click the Plot button above.",
                    style={'textAlign': 'center', 'color': colors['text'],
                           "margin-left": "5px", "margin-right": "15px"}),
-            dcc.Checklist(
-                id='australia',
-                options=[{'label': "Australia", 'value': 'australia'}],
-                value=['australia'],
-                style={"margin-left": "15px", 'textAlign': 'left', 'margin-top': '10px'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='uk',
-                options=[{'label': "UK", 'value': 'uk'}],
-                value=['uk'],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='us',
-                options=[{'label': "US", 'value': 'us'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='italy',
-                options=[{'label': "Italy", 'value': 'italy'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='spain',
-                options=[{'label': "Spain", 'value': 'spain'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='germany',
-                options=[{'label': "Germany", 'value': 'germany'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='iran',
-                options=[{'label': "Iran", 'value': 'iran'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='france',
-                options=[{'label': "France", 'value': 'france'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='ireland',
-                options=[{'label': "Ireland", 'value': 'ireland'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='china',
-                options=[{'label': "China", 'value': 'china'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='south-korea',
-                options=[{'label': "South Korea", 'value': 'south-korea'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='switzerland',
-                options=[{'label': "Switzerland", 'value': 'switzerland'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='netherlands',
-                options=[{'label': "Netherlands", 'value': 'netherlands'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='austria',
-                options=[{'label': "Austria", 'value': 'austria'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='belgium',
-                options=[{'label': "Belgium", 'value': 'belgium'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='norway',
-                options=[{'label': "Norway", 'value': 'norway'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='sweden',
-                options=[{'label': "Sweden", 'value': 'sweden'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='portugal',
-                options=[{'label': "Portugal", 'value': 'portugal'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='brazil',
-                options=[{'label': "Brazil", 'value': 'brazil'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='canada',
-                options=[{'label': "Canada", 'value': 'canada'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='denmark',
-                options=[{'label': "Denmark", 'value': 'denmark'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='malaysia',
-                options=[{'label': "Malaysia", 'value': 'malaysia'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='poland',
-                options=[{'label': "Poland", 'value': 'poland'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='greece',
-                options=[{'label': "Greece", 'value': 'greece'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='indonesia',
-                options=[{'label': "Indonesia", 'value': 'indonesia'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='philippines',
-                options=[{'label': "Philippines", 'value': 'philippines'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='china-hong-kong-sar',
-                options=[{'label': "Hong Kong", 'value': 'china-hong-kong-sar'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='iraq',
-                options=[{'label': "Iraq", 'value': 'iraq'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left'},
-                inputStyle={"margin-right": "5px"}
-            ),
-            dcc.Checklist(
-                id='algeria',
-                options=[{'label': "Algeria", 'value': 'algeria'}],
-                value=[],
-                style={"margin-left": "15px", 'textAlign': 'left', 'margin-bottom': '600px'},
-                inputStyle={"margin-right": "5px"}
-            ),
+            html.Div(style={'margin-top': '10px'}),
+            html.Div([
+                dcc.Checklist(
+                    id=c_name,
+                    options=[{'label': c_name.title() if c_name not in ['us', 'uk'] else c_name.upper(),
+                              'value': c_name}],
+                    value=[c_name] if c_name in ('us', 'uk', 'australia') else [],
+                    style={"margin-left": "15px", 'textAlign': 'left'},
+                    inputStyle={"margin-right": "5px"})
+                for i, c_name in enumerate(COUNTRY_LIST)]),
         ], style={'width': '17%', 'display': 'inline-block', 'vertical-align': 'top',
                   'background-color': 'lightgrey', 'horizontal-align': 'left', 'textAlign': 'center'}),
         html.Div(style={'width': '5%', 'display': 'inline-block'}),
@@ -296,29 +186,53 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     dcc.Graph(id='infections-linear'),
                     html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-linear'),
-                    html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
-                    dcc.Graph(id='active-linear'),
-                    ]),
+                    html.Div(id='active-cases-linear-container', style={'display': 'block'}, children=[
+                        html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                        dcc.Graph(id='active-linear'),
+                    ])
+                ]),
                 dcc.Tab(label='log', children=[
                     html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text'],
                                                            'margin-top': '30px'}),
                     dcc.Graph(id='infections-log'),
                     html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-log'),
-                    html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
-                    dcc.Graph(id='active-log'),
+                    html.Div(id='active-cases-log-container', style={'display': 'block'}, children=[
+                        html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                        dcc.Graph(id='active-log'),
+                    ])
                 ]),
             ]),
+            html.I("Some countries do not have available data for the number of Active Cases and are thus not plotted above.",
+                   style={'textAlign': 'center', 'color': colors['text']}),
+            # dcc.Checklist(
+            #     id='show-active-cases-check',
+            #     options=[{'label': "Show plot of Active Cases? (This may increase the loading time, and is not available for some countries)", 'value': 'exponential'}],
+            #     value=[],
+            #     style={'textAlign': 'center'},
+            #     inputStyle={"margin-right": "5px"}
+            # ),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
                   'textAlign': 'center', "margin-left": "0px"}),
         html.Hr(),
         html.Div(id='hidden-stored-data', style={'display': 'none'}),
         html.Footer(["Author: Daniel Muthukrishna. Data is taken from ",
-                     html.A('https://www.worldometers.info/coronavirus/.', href='https://www.worldometers.info/coronavirus/'),
-                     " ", html.A('Source code', href='https://github.com/daniel-muthukrishna/covid19')],
+                     html.A("Worldometer", href='https://www.worldometers.info/coronavirus/'), " if available or otherwise ",
+                     html.A("John Hopkins University (JHU).", href="https://github.com/ExpDev07/coronavirus-tracker-api"), " ",
+                     html.A('Source code', href='https://github.com/daniel-muthukrishna/covid19')],
                     style={'textAlign': 'center', 'color': colors['text']}),
     ], style={'horizontal-align': 'center', 'textAlign': 'center'}),
 ])
+
+
+# @app.callback([Output('active-cases-linear-container', 'style'),
+#                Output('active-cases-log-container', 'style')],
+#               [Input('show-active-cases-check', 'value')])
+# def hide_active_container(show_active_plot):
+#     if show_active_plot:
+#         return {'display': 'block'}, {'display': 'block'}
+#     else:
+#         return {'display': 'none'}, {'display': 'none'}
 
 
 @app.callback([Output('infections-linear', 'figure'),
@@ -332,36 +246,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Input('start-date', 'date'),
                Input('end-date', 'date'),
                Input('show-exponential-check', 'value')],
-              [State('hidden-stored-data', 'children'),
-               State('australia', 'value'),
-               State('uk', 'value'),
-               State('us', 'value'),
-               State('italy', 'value'),
-               State('spain', 'value'),
-               State('germany', 'value'),
-               State('iran', 'value'),
-               State('france', 'value'),
-               State('ireland', 'value'),
-               State('china', 'value'),
-               State('south-korea', 'value'),
-               State('switzerland', 'value'),
-               State('netherlands', 'value'),
-               State('austria', 'value'),
-               State('belgium', 'value'),
-               State('norway', 'value'),
-               State('sweden', 'value'),
-               State('portugal', 'value'),
-               State('brazil', 'value'),
-               State('canada', 'value'),
-               State('denmark', 'value'),
-               State('malaysia', 'value'),
-               State('poland', 'value'),
-               State('greece', 'value'),
-               State('indonesia', 'value'),
-               State('philippines', 'value'),
-               State('china-hong-kong-sar', 'value'),
-               State('iraq', 'value'),
-               State('algeria', 'value')])
+              [State('hidden-stored-data', 'children')] +
+              [State(c_name, 'value') for c_name in COUNTRY_LIST])
 def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -378,8 +264,8 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
 
     for i, country in enumerate(country_names):
         if country not in country_data.keys():
-            dates, names, data = get_data(country)
-            country_data[country] = {'dates': dates, 'titles': names, 'data': data}
+            data = get_data(country)
+            country_data[country] = data
 
     out = []
     for title in ['Cases', 'Deaths', 'Currently Infected']:
@@ -435,16 +321,21 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
                                   legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
-            title_index = country_data[c]['titles'].index(title)
-            dates = country_data[c]['dates']
+            print(c)
+            if title not in country_data[c]:
+                continue
+            if country_data[c] is None:
+                print("Cannot retrieve data from country:", c)
+                continue
+
+            dates = country_data[c][title]['dates']
             xdata = np.arange(len(dates))
-            ydata = country_data[c]['data'][title_index]
+            ydata = country_data[c][title]['data']
             ydata = np.array(ydata).astype('float')
 
             date_objects = []
             for date in dates:
-                month, day = date.split()
-                date_objects.append(datetime.date(year=2020, month=monthsdict[month], day=int(day)))
+                date_objects.append(datetime.datetime.strptime(date, '%Y-%m-%d').date())
             date_objects = np.asarray(date_objects)
 
             model_date_mask = (date_objects <= end_date) & (date_objects >= start_date)
