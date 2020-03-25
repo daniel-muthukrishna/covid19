@@ -252,7 +252,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                 id='algeria',
                 options=[{'label': "Algeria", 'value': 'algeria'}],
                 value=[],
-                style={"margin-left": "15px", 'textAlign': 'left', 'margin-bottom': '100px'},
+                style={"margin-left": "15px", 'textAlign': 'left', 'margin-bottom': '600px'},
                 inputStyle={"margin-right": "5px"}
             ),
         ], style={'width': '17%', 'display': 'inline-block', 'vertical-align': 'top',
@@ -293,11 +293,13 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             ),
             dcc.Tabs([
                  dcc.Tab(label='linear', children=[
-                    html.H3(children='Total Cases' ,style={'textAlign': 'center', 'color': colors['text'],
+                    html.H3(children='Total Cases' , style={'textAlign': 'center', 'color': colors['text'],
                                                            'margin-top': '30px'}),
                     dcc.Graph(id='infections-linear'),
-                    html.H3(children='Total Deaths',style={'textAlign': 'center', 'color': colors['text']}),
+                    html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-linear'),
+                    html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                    dcc.Graph(id='active-linear'),
                     ]),
                 dcc.Tab(label='log', children=[
                     html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text'],
@@ -305,6 +307,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     dcc.Graph(id='infections-log'),
                     html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text']}),
                     dcc.Graph(id='deaths-log'),
+                    html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                    dcc.Graph(id='active-log'),
                 ]),
             ]),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
@@ -323,6 +327,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('infections-log', 'figure'),
                Output('deaths-linear', 'figure'),
                Output('deaths-log', 'figure'),
+               Output('active-linear', 'figure'),
+               Output('active-log', 'figure'),
                Output('hidden-stored-data', 'children')],
               [Input('button-plot', 'n_clicks'),
                Input('start-date', 'date'),
@@ -381,7 +387,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
             country_data[country] = {'dates': dates, 'titles': names, 'data': data}
 
     out = []
-    for title in ['Cases', 'Deaths']:
+    for title in ['Cases', 'Deaths', 'Currently Infected']:
         fig_linear = []
         fig_log = []
 
