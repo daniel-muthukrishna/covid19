@@ -14,7 +14,7 @@ COUNTRY_LIST_WORLDOMETER = ['australia', 'uk', 'us', 'italy', 'spain', 'germany'
                             'france', 'ireland', 'china', 'south-korea', 'switzerland', 'netherlands',
                             'austria', 'belgium', 'norway', 'sweden', 'portugal', 'brazil', 'canada',
                             'denmark', 'malaysia', 'poland', 'greece', 'indonesia', 'philippines',
-                            'china-hong-kong-sar', 'iraq', 'algeria']
+                            'china-hong-kong-sar', 'iraq', 'algeria', 'world']
 
 
 def get_data(country_name):
@@ -58,7 +58,10 @@ def get_data_from_api(country_name):
 
 def get_data_from_worldometer(country_name):
     base_url = 'https://www.worldometers.info/coronavirus/country/'
-    url = base_url + country_name
+    if country_name == 'world':
+        url = 'https://www.worldometers.info/coronavirus/'
+    else:
+        url = base_url + country_name
     f = urlopen(url)
     webpage = f.read()
     dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').replace('},', '').replace('},', '').replace('  ', '').split(',')

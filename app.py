@@ -10,12 +10,14 @@ import datetime
 import json
 
 from get_data import get_data
+from constants import POPULATIONS
 
 colours = ['green', 'orange', 'blue', 'purple', 'pink', 'brown', 'cyan', 'red',
            'olive', '#FF1493', 'navy', '#aaffc3', 'lightcoral', '#228B22', '#aa6e28', '#FFA07A',
            ] + list(mcolors.CSS4_COLORS.keys())
 
-COUNTRY_LIST = ['uk',
+COUNTRY_LIST = ['world',
+                'uk',
                 'us',
                 'italy',
                 'spain',
@@ -176,9 +178,17 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                 id='show-exponential-check',
                 options=[{'label': "Show exponential fits?", 'value': 'exponential'}],
                 value=['exponential'],
+                style={'textAlign': 'center', "margin-bottom": "0px"},
+                inputStyle={"margin-right": "5px"}
+            ),
+            dcc.Checklist(
+                id='normalise-check',
+                options=[{'label': "Normalise by population?", 'value': 'normalise'}],
+                value=[],
                 style={'textAlign': 'center', "margin-bottom": "20px"},
                 inputStyle={"margin-right": "5px"}
             ),
+            dcc.Loading(id="loading-icon", children=[html.Div(id="loading-output-1")], type="default"),
             dcc.Tabs([
                  dcc.Tab(label='linear', children=[
                     html.H3(children='Total Cases' , style={'textAlign': 'center', 'color': colors['text'],
@@ -243,14 +253,16 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('deaths-log', 'figure'),
                Output('active-linear', 'figure'),
                Output('active-log', 'figure'),
-               Output('hidden-stored-data', 'children')],
+               Output('hidden-stored-data', 'children'),
+               Output("loading-icon", "children")],
               [Input('button-plot', 'n_clicks'),
                Input('start-date', 'date'),
                Input('end-date', 'date'),
-               Input('show-exponential-check', 'value')],
+               Input('show-exponential-check', 'value'),
+               Input('normalise-check', 'value')],
               [State('hidden-stored-data', 'children')] +
               [State(c_name, 'value') for c_name in COUNTRY_LIST])
-def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_data, *args):
+def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -271,35 +283,22 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
 
     out = []
     for title in ['Cases', 'Deaths', 'Currently Infected']:
+        if normalise_by_pop:
+            axis_title = f"{title} (% of population)"
+        else:
+            axis_title = title
         fig_linear = []
         fig_log = []
 
         layout_linear = {
-            # 'height': 375,
-            # 'margin': {'l': 45, 'b': 30, 'r': 10, 't': 10},
-            'yaxis': {'title': title, 'type': 'linear', 'showgrid': True,
-                      # 'titlefont': {'size': 17},
-                      # 'tickfont': {'size': 14},
-                      },
-            # 'xaxis': {'title': 'Time (days since trigger)', 'showgrid': True,
-            #           'titlefont': {'size': 17},
-            #           'tickfont': {'size': 14},
-            #           },
+            'yaxis': {'title': axis_title, 'type': 'linear', 'showgrid': True},
             'showlegend': True,
         }
         layout_log = {
-            # 'height': 375,
-            # 'margin': {'l': 45, 'b': 30, 'r': 10, 't': 10},
-            'yaxis': {'title': title, 'type': 'log', 'showgrid': True,
-                      # 'titlefont': {'size': 17},
-                      # 'tickfont': {'size': 14},
-                      },
-            # 'xaxis': {'title': 'Time (days since trigger)', 'showgrid': True,
-            #           'titlefont': {'size': 17},
-            #           'tickfont': {'size': 14},
-            #           },
+            'yaxis': {'title': axis_title, 'type': 'log', 'showgrid': True},
             'showlegend': True,
         }
+
         for fig in [fig_linear, fig_log]:
             if show_exponential:
                 fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
@@ -333,6 +332,9 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
             xdata = np.arange(len(dates))
             ydata = country_data[c][title]['data']
             ydata = np.array(ydata).astype('float')
+
+            if normalise_by_pop:
+                ydata = ydata/POPULATIONS[c] * 100
 
             date_objects = []
             for date in dates:
@@ -388,6 +390,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, saved_json_da
         out.append({'data': fig_log, 'layout': layout_log})
 
     out.append(json.dumps(country_data))
+    out.append(None)
 
     return out
 
