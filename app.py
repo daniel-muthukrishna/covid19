@@ -438,9 +438,16 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         # Compute new cases over the past l days
         ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len_ydata) if i <= (len_ydata - l)], axis=1)
 
+        dates = country_data[c]['Cases']['dates'][l:]
+        date_objects = []
+        for date in dates:
+            date_objects.append(datetime.datetime.strptime(date, '%Y-%m-%d').date())
+        date_objects = np.asarray(date_objects)
+
         mask = xdata > 100
         xdata = xdata[mask]
         ydata = ydata[mask]
+        date_objects = date_objects[mask]
 
         if normalise_by_pop:
             xdata = xdata / POPULATIONS[c] * 100
@@ -448,6 +455,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
 
         fig_new_vs_total.append(go.Scatter(x=xdata,
                                            y=ydata,
+                                           hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in date_objects],
                                            mode='lines+markers',
                                            marker={'color': colours[i]},
                                            line={'color': colours[i]},
