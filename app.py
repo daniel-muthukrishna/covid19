@@ -85,7 +85,6 @@ COUNTRY_LIST = ['world',
                 'qatar',
                 'romania',
                 'russia',
-                'south-korea',
                 'san marino',
                 'saudi arabia',
                 'serbia',
@@ -93,6 +92,7 @@ COUNTRY_LIST = ['world',
                 'slovakia',
                 'slovenia',
                 'south africa',
+                'south-korea',
                 'sri lanka',
                 'sweden',
                 'switzerland',
@@ -244,7 +244,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                    "and other factors will slow down the predicted trajectories. ",
                    style={'textAlign': 'center', 'color': colors['text']}),
             html.I("The last plot is a nice way to check if a country is beating COVID-19 - countries that fall "
-                   "below the general linear line on the log-log plot are reducing their growth rate of COVID-19. ",
+                   "below the general linear line on the log-log plot are reducing their growth rate of COVID-19 cases. ",
                    style={'textAlign': 'center', 'color': colors['text']}),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
                   'textAlign': 'center', "margin-left": "0px"}),
@@ -458,7 +458,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         yaxis_title = f'New Cases (% of population) in the past week'  # {l} days'
         xaxis_title = 'Total Cases (% of population)'
     else:
-        yaxis_title = f'New Cases (in the past week'  # {l} days)'
+        yaxis_title = f'New Cases (in the past week)'  # {l} days)'
         xaxis_title = 'Total Cases'
     layout_new_vs_total = {
         'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
