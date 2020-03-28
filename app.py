@@ -285,30 +285,6 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
 def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop,
                  daily_linear_radio, daily_log_radio, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
-
-@app.callback([Output('infections-linear', 'figure'),
-               Output('infections-log', 'figure'),
-               Output('deaths-linear', 'figure'),
-               Output('deaths-log', 'figure'),
-               Output('active-linear', 'figure'),
-               Output('active-log', 'figure'),
-               Output('daily-linear', 'figure'),
-               Output('daily-log', 'figure'),
-               Output('new-vs-total-cases', 'figure'),
-               Output('hidden-stored-data', 'children'),
-               Output("loading-icon", "children"),],
-              [Input('button-plot', 'n_clicks'),
-               Input('start-date', 'date'),
-               Input('end-date', 'date'),
-               Input('show-exponential-check', 'value'),
-               Input('normalise-check', 'value'),
-               Input('daily-linear-bar-scatter-radio', 'value'),
-               Input('daily-log-bar-scatter-radio', 'value')],
-              [State('hidden-stored-data', 'children')] +
-              [State(c_name, 'value') for c_name in COUNTRY_LIST])
-def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop,
-                 daily_linear_radio, daily_log_radio, saved_json_data, *args):
-    print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
 
