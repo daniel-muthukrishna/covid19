@@ -12,8 +12,8 @@ import json
 from get_data import get_data
 from constants import POPULATIONS
 
-colours = ['green', 'orange', 'blue', 'purple', 'pink', 'brown', 'cyan', 'red',
-           'olive', '#FF1493', 'navy', '#aaffc3', 'lightcoral', '#228B22', '#aa6e28', '#FFA07A',
+colours = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf',
+           'blue', 'purple', 'pink', 'cyan', '#FF1493', 'navy', '#aaffc3', '#228B22', '#aa6e28', '#FFA07A',
            ] + list(mcolors.CSS4_COLORS.keys())
 
 COUNTRY_LIST = ['world',
