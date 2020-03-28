@@ -243,9 +243,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             html.I("The models assume exponential growth - social distancing, quarantining, herd immunity, "
                    "and other factors will slow down the predicted trajectories. ",
                    style={'textAlign': 'center', 'color': colors['text']}),
-            # html.I("The last plot is a nice way to check if we are beating COVID-19. Countries that fall "
-            #        "below the general linear line on the log-log plot are reducing their growth rate of COVID-19. ",
-            #        style={'textAlign': 'center', 'color': colors['text']}),
+            html.I("The last plot is a nice way to check if a country is beating COVID-19 - countries that fall "
+                   "below the general linear line on the log-log plot are reducing their growth rate of COVID-19. ",
+                   style={'textAlign': 'center', 'color': colors['text']}),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
                   'textAlign': 'center', "margin-left": "0px"}),
         html.Hr(),
@@ -428,12 +428,14 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
     # Plot 'New Cases vs Total Cases'
     fig_new_vs_total = []
     for i, c in enumerate(country_names):
-        l = 3  # Number of days to look back
-        xdata = np.array(country_data[c]['Cases']['data']).astype('float')[1:-(l+1)]
-        ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
+        l = 7  # Number of days to look back
+        cases = np.array(country_data[c]['Cases']['data']).astype('float')
+        xdata = np.copy(cases[l:])
+        ydata = np.diff(cases)
+        len_ydata = len(ydata)
 
         # Compute new cases over the past l days
-        ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len(ydata)) if i < (len(ydata) - l - 1)], axis=1)
+        ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len_ydata) if i <= (len_ydata - l)], axis=1)
 
         mask = xdata > 100
         xdata = xdata[mask]
@@ -453,10 +455,10 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                            yaxis='y1',
                                            legendgroup='group1', ))
     if normalise_by_pop:
-        yaxis_title = 'New Cases (% of population) in the past 3 days'
+        yaxis_title = f'New Cases (% of population) in the past week'  # {l} days'
         xaxis_title = 'Total Cases (% of population)'
     else:
-        yaxis_title = 'New Cases (in the past 3 days)'
+        yaxis_title = f'New Cases (in the past week'  # {l} days)'
         xaxis_title = 'Total Cases'
     layout_new_vs_total = {
         'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
