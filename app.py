@@ -199,7 +199,18 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     html.Div(id='active-cases-linear-container', style={'display': 'block'}, children=[
                         html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
                         dcc.Graph(id='active-linear'),
-                    ])
+                    ]),
+                    html.Div(id='daily-cases-linear-container', children=[
+                        html.H3(children='Daily New Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                        dcc.RadioItems(
+                            id='daily-linear-bar-scatter-radio',
+                            options=[{'label': i, 'value': i} for i in ['Bar', 'Scatter']],
+                            value='Bar',
+                            labelStyle={'display': 'inline-block', "margin-right": "10px"},
+                            inputStyle={"margin-right": "4px"}
+                        ),
+                        dcc.Graph(id='daily-linear'),
+                    ]),
                 ]),
                 dcc.Tab(label='log', children=[
                     html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text'],
@@ -210,7 +221,18 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     html.Div(id='active-cases-log-container', style={'display': 'block'}, children=[
                         html.H3(children='Active Cases', style={'textAlign': 'center', 'color': colors['text']}),
                         dcc.Graph(id='active-log'),
-                    ])
+                    ]),
+                    html.Div(id='daily-cases-log-container', children=[
+                        html.H3(children='Daily New Cases', style={'textAlign': 'center', 'color': colors['text']}),
+                        dcc.RadioItems(
+                            id='daily-log-bar-scatter-radio',
+                            options=[{'label': i, 'value': i} for i in ['Bar', 'Scatter']],
+                            value='Bar',
+                            labelStyle={'display': 'inline-block', "margin-right": "10px"},
+                            inputStyle={"margin-right": "4px"}
+                        ),
+                        dcc.Graph(id='daily-log'),
+                    ]),
                 ]),
             ]),
             html.I("Some countries do not have available data for the number of Active Cases and are thus not plotted above.",
@@ -253,16 +275,21 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('deaths-log', 'figure'),
                Output('active-linear', 'figure'),
                Output('active-log', 'figure'),
+               Output('daily-linear', 'figure'),
+               Output('daily-log', 'figure'),
                Output('hidden-stored-data', 'children'),
                Output("loading-icon", "children")],
               [Input('button-plot', 'n_clicks'),
                Input('start-date', 'date'),
                Input('end-date', 'date'),
                Input('show-exponential-check', 'value'),
-               Input('normalise-check', 'value')],
+               Input('normalise-check', 'value'),
+               Input('daily-linear-bar-scatter-radio', 'value'),
+               Input('daily-log-bar-scatter-radio', 'value')],
               [State('hidden-stored-data', 'children')] +
               [State(c_name, 'value') for c_name in COUNTRY_LIST])
-def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop, saved_json_data, *args):
+def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop,
+                 daily_linear_radio, daily_log_radio, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -282,7 +309,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             country_data[country] = data
 
     out = []
-    for title in ['Cases', 'Deaths', 'Currently Infected']:
+    for title in ['Cases', 'Deaths', 'Currently Infected', 'Daily New Cases']:
         if normalise_by_pop:
             axis_title = f"{title} (% of population)"
         else:
@@ -293,10 +320,12 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         layout_linear = {
             'yaxis': {'title': axis_title, 'type': 'linear', 'showgrid': True},
             'showlegend': True,
+            'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
         }
         layout_log = {
             'yaxis': {'title': axis_title, 'type': 'log', 'showgrid': True},
             'showlegend': True,
+            'margin': {'l': 50, 'b': 0, 't': 0, 'r': 0},
         }
 
         for fig in [fig_linear, fig_log]:
@@ -322,16 +351,20 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                   legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
-            if title not in country_data[c]:
-                continue
             if country_data[c] is None:
                 print("Cannot retrieve data from country:", c)
                 continue
+            if title == 'Daily New Cases':
+                dates = country_data[c]['Cases']['dates'][1:]
+                ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
+            elif title not in country_data[c]:
+                continue
+            else:
+                dates = country_data[c][title]['dates']
+                ydata = country_data[c][title]['data']
+                ydata = np.array(ydata).astype('float')
 
-            dates = country_data[c][title]['dates']
             xdata = np.arange(len(dates))
-            ydata = country_data[c][title]['data']
-            ydata = np.array(ydata).astype('float')
 
             if normalise_by_pop:
                 ydata = ydata/POPULATIONS[c] * 100
@@ -367,24 +400,33 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             else:
                 label = fr'{c.upper():<10s}'
             for fig in [fig_linear, fig_log]:
-                fig.append(go.Scatter(x=date_objects,
+                daily_radio = daily_linear_radio if fig == fig_linear else daily_log_radio
+                if title in ['Daily New Cases'] and daily_radio == 'Bar':
+                    fig.append(go.Bar(x=date_objects,
                                       y=ydata,
-                                      mode='lines+markers',
-                                      marker={'color': colours[i]},
-                                      line={'color': colours[i]},
                                       showlegend=True,
                                       name=label,
                                       yaxis='y1',
-                                      legendgroup='group1', ))
-                if show_exponential:
-                    fig.append(go.Scatter(x=model_dates,
-                                          y=lin_yfit,
-                                          mode='lines',
-                                          line={'color': colours[i], 'dash': 'dash'},
-                                          showlegend=False,
-                                          name=fr'Model {c.upper():<10s}',
+                                      legendgroup='group1'))
+                else:
+                    fig.append(go.Scatter(x=date_objects,
+                                          y=ydata,
+                                          mode='lines+markers',
+                                          marker={'color': colours[i]},
+                                          line={'color': colours[i]},
+                                          showlegend=True,
+                                          name=label,
                                           yaxis='y1',
                                           legendgroup='group1', ))
+                    if show_exponential:
+                        fig.append(go.Scatter(x=model_dates,
+                                              y=lin_yfit,
+                                              mode='lines',
+                                              line={'color': colours[i], 'dash': 'dash'},
+                                              showlegend=False,
+                                              name=fr'Model {c.upper():<10s}',
+                                              yaxis='y1',
+                                              legendgroup='group1', ))
 
         out.append({'data': fig_linear, 'layout': layout_linear})
         out.append({'data': fig_log, 'layout': layout_log})
