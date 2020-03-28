@@ -211,9 +211,6 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                         ),
                         dcc.Graph(id='daily-linear'),
                     ]),
-                    html.H3(children='Daily New Cases vs Existing Cases',
-                            style={'textAlign': 'center', 'color': colors['text']}),
-                    dcc.Graph(id='new-vs-existing-cases-linear'),
                 ]),
                 dcc.Tab(label='log', children=[
                     html.H3(children='Total Cases', style={'textAlign': 'center', 'color': colors['text'],
@@ -236,16 +233,19 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                         ),
                         dcc.Graph(id='daily-log'),
                     ]),
-                    html.H3(children='Daily New Cases vs Existing Cases',
-                            style={'textAlign': 'center', 'color': colors['text']}),
-                    dcc.Graph(id='new-vs-existing-cases-log'),
                 ]),
             ]),
-            html.I("Some countries do not have available data for the number of Active Cases. \n",
+            html.H3(children='New Cases vs Total Cases',
+                    style={'textAlign': 'center', 'color': colors['text']}),
+            dcc.Graph(id='new-vs-total-cases'),
+            html.I("Some countries do not have available data for the number of Active Cases. ",
                    style={'textAlign': 'center', 'color': colors['text']}),
-            html.I("The models assume exponential growth. Social distancing, quarantining, herd immunity, "
-                   "and other factors will slow down the predicted trajectories.",
+            html.I("The models assume exponential growth - social distancing, quarantining, herd immunity, "
+                   "and other factors will slow down the predicted trajectories. ",
                    style={'textAlign': 'center', 'color': colors['text']}),
+            # html.I("The last plot is a nice way to check if we are beating COVID-19. Countries that fall "
+            #        "below the general linear line on the log-log plot are reducing their growth rate of COVID-19. ",
+            #        style={'textAlign': 'center', 'color': colors['text']}),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
                   'textAlign': 'center', "margin-left": "0px"}),
         html.Hr(),
@@ -269,8 +269,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('active-log', 'figure'),
                Output('daily-linear', 'figure'),
                Output('daily-log', 'figure'),
-               Output('new-vs-existing-cases-linear', 'figure'),
-               Output('new-vs-existing-cases-log', 'figure'),
+               Output('new-vs-total-cases', 'figure'),
                Output('hidden-stored-data', 'children'),
                Output("loading-icon", "children"),],
               [Input('button-plot', 'n_clicks'),
@@ -303,7 +302,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             country_data[country] = data
 
     out = []
-    for title in ['Cases', 'Deaths', 'Currently Infected', 'Daily New Cases', 'Daily New Cases vs Existing Cases']:
+    for title in ['Cases', 'Deaths', 'Currently Infected', 'Daily New Cases']:
         if normalise_by_pop:
             axis_title = f"{title} (% of population)"
         else:
@@ -323,27 +322,26 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         }
 
         for fig in [fig_linear, fig_log]:
-            if title not in ['Daily New Cases vs Existing Cases']:
-                if show_exponential:
-                    fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
-                                          y=[0],
-                                          mode='lines',
-                                          line={'color': 'black', 'dash': 'dash'},
-                                          showlegend=True,
-                                          name=fr'Best exponential fits',
-                                          yaxis='y1',
-                                          legendgroup='group2', ))
-                    label = fr'COUNTRY : best fit (doubling time)'
-                else:
-                    label = fr'COUNTRY'
+            if show_exponential:
                 fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
                                       y=[0],
-                                      mode='lines+markers',
-                                      line={'color': 'black'},
+                                      mode='lines',
+                                      line={'color': 'black', 'dash': 'dash'},
                                       showlegend=True,
-                                      name=label,
+                                      name=fr'Best exponential fits',
                                       yaxis='y1',
                                       legendgroup='group2', ))
+                label = fr'COUNTRY : best fit (doubling time)'
+            else:
+                label = fr'COUNTRY'
+            fig.append(go.Scatter(x=[datetime.date(2020, 2, 20)],
+                                  y=[0],
+                                  mode='lines+markers',
+                                  line={'color': 'black'},
+                                  showlegend=True,
+                                  name=label,
+                                  yaxis='y1',
+                                  legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
             if country_data[c] is None:
@@ -352,10 +350,6 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             if title == 'Daily New Cases':
                 dates = country_data[c]['Cases']['dates'][1:]
                 xdata = np.arange(len(dates))
-                ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
-            elif title == 'Daily New Cases vs Existing Cases':
-                dates = country_data[c]['Cases']['dates'][1:]
-                xdata = np.array(country_data[c]['Cases']['data']).astype('float')[1:]
                 ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
             elif title not in country_data[c]:
                 continue
@@ -387,7 +381,6 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             model_xdata = np.array(model_xdata)
 
             b, logA = np.polyfit(xdata[model_date_mask], np.log(ydata[model_date_mask]), 1)
-            # log_yfit = b * xdata[model_date_mask] + logA
             lin_yfit = np.exp(logA) * np.exp(b * model_xdata)
 
             if show_exponential:
@@ -398,6 +391,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 label = fr'{c.upper():<10s}: {np.exp(b):.2f}^t ({double_time})'
             else:
                 label = fr'{c.upper():<10s}'
+
             for fig in [fig_linear, fig_log]:
                 daily_radio = daily_linear_radio if fig == fig_linear else daily_log_radio
                 if title in ['Daily New Cases'] and daily_radio == 'Bar':
@@ -408,28 +402,6 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                       marker={'color': colours[i]},
                                       yaxis='y1',
                                       legendgroup='group1'))
-                elif title in ['Daily New Cases vs Existing Cases']:
-                    fig.append(go.Scatter(x=xdata,
-                                          y=ydata,
-                                          mode='lines+markers',
-                                          marker={'color': colours[i]},
-                                          line={'color': colours[i]},
-                                          showlegend=True,
-                                          name=label,
-                                          yaxis='y1',
-                                          legendgroup='group1', ))
-                    layout_linear = {
-                        'yaxis': {'title': 'Daily New Cases', 'type': 'linear', 'showgrid': True},
-                        'xaxis': {'title': 'Confirmed Cases', 'type': 'linear', 'showgrid': True},
-                        'showlegend': True,
-                        'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
-                    }
-                    layout_log = {
-                        'yaxis': {'title': 'Daily New Cases', 'type': 'log', 'showgrid': True},
-                        'xaxis': {'title': 'Confirmed Cases', 'type': 'log', 'showgrid': True},
-                        'showlegend': True,
-                        'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
-                    }
                 else:
                     fig.append(go.Scatter(x=date_objects,
                                           y=ydata,
@@ -453,10 +425,36 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         out.append({'data': fig_linear, 'layout': layout_linear})
         out.append({'data': fig_log, 'layout': layout_log})
 
-    # # Plot 'Daily New Cases vs Existing Cases':
-    # for i, c in enumerate(country_names):
-    # xdata = np.array(country_data[c]['Cases']['data']).astype('float')[1:]
-    # ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
+    # Plot 'New Cases vs Total Cases'
+    fig_new_vs_total = []
+    for i, c in enumerate(country_names):
+        l = 3  # Number of days to look back
+        xdata = np.array(country_data[c]['Cases']['data']).astype('float')[1:-(l+1)]
+        ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
+
+        # Compute new cases over the past l days
+        ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len(ydata)) if i < (len(ydata) - l - 1)], axis=1)
+
+        mask = xdata > 100
+        xdata = xdata[mask]
+        ydata = ydata[mask]
+
+        fig_new_vs_total.append(go.Scatter(x=xdata,
+                                                 y=ydata,
+                                                 mode='lines+markers',
+                                                 marker={'color': colours[i]},
+                                                 line={'color': colours[i]},
+                                                 showlegend=True,
+                                                 name=fr'{c.upper():<10s}',
+                                                 yaxis='y1',
+                                                 legendgroup='group1', ))
+    layout_new_vs_total = {
+        'yaxis': {'title': 'New Cases (in the past 3 days)', 'type': 'log', 'showgrid': True},
+        'xaxis': {'title': 'Total Cases', 'type': 'log', 'showgrid': True},
+        'showlegend': True,
+        'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
+    }
+    out.append({'data': fig_new_vs_total, 'layout': layout_new_vs_total})
 
     out.append(json.dumps(country_data))
     out.append(None)
