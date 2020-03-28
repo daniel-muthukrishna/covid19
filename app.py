@@ -414,7 +414,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                           yaxis='y1',
                                           legendgroup='group1', ))
                 if show_exponential:
-                    if title in ['Daily New Cases'] and daily_radio != 'Bar':
+                    if title in ['Daily New Cases'] and daily_radio == 'Bar':
                         continue
                     fig.append(go.Scatter(x=model_dates,
                                           y=lin_yfit,
