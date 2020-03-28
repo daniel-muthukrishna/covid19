@@ -12,7 +12,7 @@ import json
 from get_data import get_data
 from constants import POPULATIONS
 
-colours = ['#1f77b4','#ff7f0e', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#2ca02c', '#7f7f7f', '#bcbd22', '#17becf',
+colours = ['#1f77b4','#ff7f0e', '#2ca02c','#9467bd', '#8c564b', '#e377c2', '#d62728', '#7f7f7f', '#bcbd22', '#17becf',
            'blue', 'purple', 'pink', 'cyan', '#FF1493', 'navy', '#aaffc3', '#228B22', '#aa6e28', '#FFA07A',
            ] + list(mcolors.CSS4_COLORS.keys())
 
