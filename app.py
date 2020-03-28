@@ -416,6 +416,8 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 if show_exponential:
                     if title in ['Daily New Cases'] and daily_radio == 'Bar':
                         continue
+                    if np.log(2) / b < 0:
+                        continue
                     fig.append(go.Scatter(x=model_dates,
                                           y=lin_yfit,
                                           mode='lines',
