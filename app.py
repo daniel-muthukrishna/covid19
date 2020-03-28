@@ -385,7 +385,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             lin_yfit = np.exp(logA) * np.exp(b * model_xdata)
 
             if show_exponential:
-                if np.log(2) / b >= 1000:
+                if np.log(2) / b > 1000:
                     double_time = 'no growth'
                 else:
                     double_time = fr'{np.log(2) / b:.1f} days to double'
