@@ -406,6 +406,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                       y=ydata,
                                       showlegend=True,
                                       name=label,
+                                      marker={'color': colours[i]},
                                       yaxis='y1',
                                       legendgroup='group1'))
                 else:
