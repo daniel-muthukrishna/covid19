@@ -439,18 +439,28 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         xdata = xdata[mask]
         ydata = ydata[mask]
 
+        if normalise_by_pop:
+            xdata = xdata / POPULATIONS[c] * 100
+            ydata = ydata / POPULATIONS[c] * 100
+
         fig_new_vs_total.append(go.Scatter(x=xdata,
-                                                 y=ydata,
-                                                 mode='lines+markers',
-                                                 marker={'color': colours[i]},
-                                                 line={'color': colours[i]},
-                                                 showlegend=True,
-                                                 name=fr'{c.upper():<10s}',
-                                                 yaxis='y1',
-                                                 legendgroup='group1', ))
+                                           y=ydata,
+                                           mode='lines+markers',
+                                           marker={'color': colours[i]},
+                                           line={'color': colours[i]},
+                                           showlegend=True,
+                                           name=fr'{c.upper():<10s}',
+                                           yaxis='y1',
+                                           legendgroup='group1', ))
+    if normalise_by_pop:
+        yaxis_title = 'New Cases (% of population) in the past 3 days'
+        xaxis_title = 'Total Cases (% of population)'
+    else:
+        yaxis_title = 'New Cases (in the past 3 days)'
+        xaxis_title = 'Total Cases'
     layout_new_vs_total = {
-        'yaxis': {'title': 'New Cases (in the past 3 days)', 'type': 'log', 'showgrid': True},
-        'xaxis': {'title': 'Total Cases', 'type': 'log', 'showgrid': True},
+        'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
+        'xaxis': {'title': xaxis_title, 'type': 'log', 'showgrid': True},
         'showlegend': True,
         'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
     }
