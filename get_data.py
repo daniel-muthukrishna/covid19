@@ -2,6 +2,7 @@ from urllib.request import urlopen, Request
 from collections import Counter
 
 from constants import COUNTRY_NAME_TO_CODE, MONTHS_DICT
+
 try:
     import COVID19Py
     covid19 = COVID19Py.COVID19()
