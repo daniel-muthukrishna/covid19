@@ -317,7 +317,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                      html.Br(),
                      "Data is taken from ",
                      html.A("Worldometer", href='https://www.worldometers.info/coronavirus/'), " if available or otherwise ",
-                     html.A("John Hopkins University (JHU) CSSE", href="https://github.com/ExpDev07/coronavirus-tracker-api"), "."],
+                     html.A("Johns Hopkins University (JHU) CSSE", href="https://github.com/ExpDev07/coronavirus-tracker-api"), "."],
                     style={'textAlign': 'center', 'color': colors['text'], "margin-bottom": "40px"}),
     ], style={'horizontal-align': 'center', 'textAlign': 'center'}),
 ])
