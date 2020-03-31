@@ -115,15 +115,8 @@ colors = {
 
 app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-family': 'sans-serif'},
                       id='output-layout', children=[
-    html.H2(
-        children='COVID-19 Cases and Deaths',
-        style={
-            'textAlign': 'center',
-            'color': colors['text'],
-            'margin-top': '17px'
-        }
-    ),
-    html.Hr(),
+
+    html.Br(),
     html.Div([
         html.Div([
             html.Button(
@@ -150,6 +143,16 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                   'background-color': 'lightgrey', 'horizontal-align': 'left', 'textAlign': 'center'}),
         html.Div(style={'width': '5%', 'display': 'inline-block'}),
         html.Div([
+            html.H2(
+                children='COVID-19 Cases and Deaths',
+                style={
+                    'textAlign': 'center',
+                    'color': colors['text'],
+                    'margin-top': '5px',
+                    'margin-bottom': '15px',
+                }
+            ),
+            html.Hr(),
             html.Div([
                 html.I("Fit exponential from: ",
                        style={'textAlign': 'center', 'color': colors['text'], "margin-left": "15px",}),
@@ -162,7 +165,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     display_format='D-MMM-YYYY',
                     style={'textAlign': 'center'}
                 ),
-            ], style={'display': 'inline-block', 'horizontal-align': 'center', 'textAlign': 'center'}),
+            ], style={'display': 'inline-block', 'horizontal-align': 'center', 'textAlign': 'center',
+                      'margin-top': '10px',}),
             html.Div([
                 html.I("Predict until: ",
                        style={'textAlign': 'center', 'color': colors['text'], "margin-left": "15px", }),
