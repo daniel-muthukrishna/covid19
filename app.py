@@ -219,6 +219,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     debounce=True,
                     style={'width': 80},
                 ),
+                html.Div(id='display_percentage_text_cases', style={'display': 'none'}, children=[
+                    html.P("% of population")
+                ]),
             ]),
             dcc.Graph(id='infections-plot'),
             html.H3(children='Total Deaths', style={'textAlign': 'center', 'color': colors['text'],
@@ -239,8 +242,11 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     value=20,
                     min=0,
                     debounce=True,
-                    style={'width': 80},
+                    style={'width': 100},
                 ),
+                html.Div(id='display_percentage_text_deaths', style={'display': 'none'}, children=[
+                    html.P("% of population")
+                ]),
             ]),
             dcc.Graph(id='deaths-plot'),
             html.Div(id='active-cases-container', style={'display': 'block'}, children=[
@@ -263,6 +269,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                         debounce=True,
                         style={'width': 80},
                     ),
+                    html.Div(id='display_percentage_text_active', style={'display': 'none'}, children=[
+                        html.P("% of population")
+                    ]),
                 ]),
                 dcc.Graph(id='active-plot'),
             ]),
@@ -287,6 +296,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                         debounce=True,
                         style={'width': 80},
                     ),
+                    html.Div(id='display_percentage_text_daily', style={'display': 'none'}, children=[
+                        html.P("% of population")
+                    ]),
                 ]),
                 dcc.Graph(id='daily-plot'),
             ]),
@@ -325,6 +337,38 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     style={'textAlign': 'center', 'color': colors['text'], "margin-bottom": "40px"}),
     ], style={'horizontal-align': 'center', 'textAlign': 'center'}),
 ])
+
+
+@app.callback([Output('align-cases-check', 'options'),
+               Output('align-cases-input', 'value'),
+               Output('display_percentage_text_cases', 'style'),
+               Output('align-deaths-check', 'options'),
+               Output('align-deaths-input', 'value'),
+               Output('display_percentage_text_deaths', 'style'),
+               Output('align-active-cases-check', 'options'),
+               Output('align-active-cases-input', 'value'),
+               Output('display_percentage_text_active', 'style'),
+               Output('align-daily-cases-check', 'options'),
+               Output('align-daily-cases-input', 'value'),
+               Output('display_percentage_text_daily', 'style')],
+              [Input('normalise-check', 'value')])
+def update_align_options(normalise_by_pop):
+    if normalise_by_pop:
+        options = [{'label': "Align countries by the date when the percentage of confirmed cases was ",
+                    'value': 'align'}]
+        hidden_text = {'display': 'inline-block'}
+        return [options, 0.0015, hidden_text,
+                options, 0.000034, hidden_text,
+                options, 0.0015, hidden_text,
+                options, 0.0015, hidden_text]
+    else:
+        options = [{'label': "Align countries by the date when the number of confirmed cases was ",
+                    'value': 'align'}]
+        hidden_text = {'display': 'none'}
+        return[options, 1000, hidden_text,
+               options, 20, hidden_text,
+               options, 1000, hidden_text,
+               options, 1000, hidden_text]
 
 
 @app.callback([Output('infections-plot', 'figure'),
@@ -492,6 +536,9 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 date_objects.append(datetime.datetime.strptime(date, '%Y-%m-%d').date())
             date_objects = np.asarray(date_objects)
 
+            if normalise_by_pop:
+                ydata = ydata/POPULATIONS[c] * 100
+
             if align_countries:
                 if title in ['Cases', 'Deaths']:
                     idx_when_n_cases = np.abs(ydata - align_input).argmin()
@@ -502,9 +549,6 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                         idx_when_n_cases -= 1
 
                 xdata = xdata - idx_when_n_cases
-
-            if normalise_by_pop:
-                ydata = ydata/POPULATIONS[c] * 100
 
             model_date_mask = (date_objects <= end_date) & (date_objects >= start_date)
 
