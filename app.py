@@ -190,7 +190,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             ),
             dcc.Checklist(
                 id='normalise-check',
-                options=[{'label': "Normalise by population?", 'value': 'normalise'}],
+                options=[{'label': "Plot as percentage of population?", 'value': 'normalise'}],
                 value=[],
                 style={'textAlign': 'center', "margin-bottom": "20px"},
                 inputStyle={"margin-right": "5px"}
@@ -397,7 +397,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             'xaxis': {'title': f'Days since the total confirmed cases reached {align_input}' if align_countries else '',
                       'showgrid': True},
             'showlegend': True,
-            'margin': {'l': 50, 'b': 100, 't': 0, 'r': 0},
+            'margin': {'l': 70, 'b': 100, 't': 0, 'r': 0},
             'updatemenus': [
                 dict(
                     buttons=list([
@@ -545,14 +545,16 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
 
             if show_exponential:
                 if np.log(2) / b < 0:
-                    continue
+                    show_plot = False
+                else:
+                    show_plot = True
                 figs.append(go.Scatter(x=model_dates if not align_countries else model_xdata,
                                        y=lin_yfit,
                                        hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in model_dates] if align_countries else '',
                                        mode='lines',
                                        line={'color': colours[i], 'dash': 'dash'},
                                        showlegend=False,
-                                       visible=False if title == 'Daily New Cases' else True,
+                                       visible=False if title == 'Daily New Cases' else show_plot,
                                        name=fr'Model {c.upper():<10s}',
                                        yaxis='y1',
                                        legendgroup='group1', ))
@@ -562,7 +564,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                    y=ydata,
                                    hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in date_objects] if align_countries else '',
                                    showlegend=True,
-                                   visible=True if title == 'Daily New Cases' else True,
+                                   visible=True,
                                    name=label,
                                    marker={'color': colours[i]},
                                    yaxis='y1',
@@ -620,7 +622,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
         'xaxis': {'title': xaxis_title, 'type': 'log', 'showgrid': True},
         'showlegend': True,
-        'margin': {'l': 50, 'b': 100, 't': 50, 'r': 0},
+        'margin': {'l': 70, 'b': 100, 't': 50, 'r': 0},
     }
     out.append({'data': fig_new_vs_total, 'layout': layout_new_vs_total})
 
