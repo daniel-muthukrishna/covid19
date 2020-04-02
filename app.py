@@ -242,7 +242,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     value=20,
                     min=0,
                     debounce=True,
-                    style={'width': 100},
+                    style={'width': 80},
                 ),
                 html.Div(id='display_percentage_text_deaths', style={'display': 'none'}, children=[
                     html.P("% of population")
@@ -296,11 +296,39 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                         debounce=True,
                         style={'width': 80},
                     ),
-                    html.Div(id='display_percentage_text_daily', style={'display': 'none'}, children=[
+                    html.Div(id='display_percentage_text_daily_cases', style={'display': 'none'}, children=[
                         html.P("% of population")
                     ]),
                 ]),
-                dcc.Graph(id='daily-plot'),
+                dcc.Graph(id='daily-cases-plot'),
+            ]),
+
+            html.Div(id='daily-deaths-container', children=[
+                html.H3(children='Daily New Deaths', style={'textAlign': 'center', 'color': colors['text'],
+                                                    'margin-top': '10px'}),
+                html.Div(style={'display': 'inline-block', 'textAlign': 'left'}, children=[
+                    dcc.Checklist(
+                        id='align-daily-deaths-check',
+                        options=[{'label': "Align countries by the date when the number of confirmed deaths was ",
+                                  'value': 'align'}],
+                        value=[],
+                        style={'textAlign': 'left', "margin-right": "4px", 'display': 'inline-block'},
+                        inputStyle={"margin-right": "5px"}
+                    ),
+                    dcc.Input(
+                        id="align-daily-deaths-input",
+                        type="number",
+                        placeholder='Number of deaths',
+                        value=1000,
+                        min=0,
+                        debounce=True,
+                        style={'width': 80},
+                    ),
+                    html.Div(id='display_percentage_text_daily_deaths', style={'display': 'none'}, children=[
+                        html.P("% of population")
+                    ]),
+                ]),
+                dcc.Graph(id='daily-deaths-plot'),
             ]),
 
             html.H3(children='New Cases vs Total Cases', style={'textAlign': 'center', 'color': colors['text'],
@@ -356,7 +384,10 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                Output('display_percentage_text_active', 'style'),
                Output('align-daily-cases-check', 'options'),
                Output('align-daily-cases-input', 'value'),
-               Output('display_percentage_text_daily', 'style')],
+               Output('display_percentage_text_daily_cases', 'style'),
+               Output('align-daily-deaths-check', 'options'),
+               Output('align-daily-deaths-input', 'value'),
+               Output('display_percentage_text_daily_deaths', 'style')],
               [Input('normalise-check', 'value')])
 def update_align_options(normalise_by_pop):
     if normalise_by_pop:
@@ -368,7 +399,8 @@ def update_align_options(normalise_by_pop):
         return [options_cases, 0.0015, hidden_text,
                 options_deaths, 0.000034, hidden_text,
                 options_cases, 0.0015, hidden_text,
-                options_cases, 0.0015, hidden_text]
+                options_cases, 0.0015, hidden_text,
+                options_deaths, 0.000034, hidden_text]
     else:
         options_cases = [{'label': "Align countries by the date when the number of confirmed cases was ",
                     'value': 'align'}]
@@ -378,13 +410,15 @@ def update_align_options(normalise_by_pop):
         return[options_cases, 1000, hidden_text,
                options_deaths, 20, hidden_text,
                options_cases, 1000, hidden_text,
-               options_cases, 1000, hidden_text]
+               options_cases, 1000, hidden_text,
+               options_deaths, 20, hidden_text]
 
 
 @app.callback([Output('infections-plot', 'figure'),
                Output('deaths-plot', 'figure'),
                Output('active-plot', 'figure'),
-               Output('daily-plot', 'figure'),
+               Output('daily-cases-plot', 'figure'),
+               Output('daily-deaths-plot', 'figure'),
                Output('new-vs-total-cases', 'figure'),
                Output('new-vs-total-deaths', 'figure'),
                Output('hidden-stored-data', 'children'),
@@ -401,12 +435,15 @@ def update_align_options(normalise_by_pop):
                Input('align-active-cases-check', 'value'),
                Input('align-active-cases-input', 'value'),
                Input('align-daily-cases-check', 'value'),
-               Input('align-daily-cases-input', 'value')],
+               Input('align-daily-cases-input', 'value'),
+               Input('align-daily-deaths-check', 'value'),
+               Input('align-daily-deaths-input', 'value')],
               [State('hidden-stored-data', 'children')] +
               [State(c_name, 'value') for c_name in COUNTRY_LIST])
 def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_pop,
                  align_cases_check, align_cases_input, align_deaths_check, align_deaths_input, align_active_cases_check,
-                 align_active_cases_input, align_daily_cases_check, align_daily_cases_input, saved_json_data, *args):
+                 align_active_cases_input, align_daily_cases_check, align_daily_cases_input,
+                 align_daily_deaths_check, align_daily_deaths_input, saved_json_data, *args):
     print(n_clicks, start_date, end_date, args)
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -426,7 +463,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
             country_data[country] = data
 
     out = []
-    for title in ['Cases', 'Deaths', 'Currently Infected', 'Daily New Cases']:
+    for title in ['Cases', 'Deaths', 'Currently Infected', 'Daily New Cases', 'Daily New Deaths']:
         if normalise_by_pop:
             axis_title = f"{title} (% of population)"
         else:
@@ -444,13 +481,22 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
         elif title == 'Daily New Cases':
             align_countries = align_daily_cases_check
             align_input = align_daily_cases_input
+        elif title == 'Daily New Deaths':
+            align_countries = align_daily_deaths_check
+            align_input = align_daily_deaths_input
 
         figs = []
 
+        if align_countries:
+            xaxis_title = f'Days since the total confirmed cases reached {align_input}'
+            if normalise_by_pop:
+                xaxis_title += '% of the population'
+        else:
+            xaxis_title = ''
+
         layout_normal = {
             'yaxis': {'title': axis_title, 'type': 'linear', 'showgrid': True},
-            'xaxis': {'title': f'Days since the total confirmed cases reached {align_input}' if align_countries else '',
-                      'showgrid': True},
+            'xaxis': {'title': xaxis_title, 'showgrid': True},
             'showlegend': True,
             'margin': {'l': 70, 'b': 100, 't': 0, 'r': 0},
             'updatemenus': [
@@ -511,7 +557,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                    mode='lines',
                                    line={'color': 'black', 'dash': 'dash'},
                                    showlegend=True,
-                                   visible=False if title == 'Daily New Cases' else 'legendonly',
+                                   visible=False if title in ['Daily New Cases', 'Daily New Deaths']else 'legendonly',
                                    name=fr'Best exponential fits',
                                    yaxis='y1',
                                    legendgroup='group2', ))
@@ -523,7 +569,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                mode='lines+markers',
                                line={'color': 'black'},
                                showlegend=True,
-                               visible=False if title == 'Daily New Cases' else 'legendonly',
+                               visible=False if title in ['Daily New Cases', 'Daily New Deaths'] else 'legendonly',
                                name=label,
                                yaxis='y1',
                                legendgroup='group2', ))
@@ -536,6 +582,10 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 dates = country_data[c]['Cases']['dates'][1:]
                 xdata = np.arange(len(dates))
                 ydata = np.diff(np.array(country_data[c]['Cases']['data']).astype('float'))
+            elif title == 'Daily New Deaths':
+                dates = country_data[c]['Deaths']['dates'][1:]
+                xdata = np.arange(len(dates))
+                ydata = np.diff(np.array(country_data[c]['Deaths']['data']).astype('float'))
             elif title not in country_data[c]:
                 continue
             else:
@@ -558,8 +608,11 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 elif title in ['Currently Infected', 'Daily New Cases']:
                     ydata_cases = np.array(country_data[c]['Cases']['data']).astype('float')
                     idx_when_n_cases = np.abs(ydata_cases - align_input).argmin()
-                    if title == 'Daily New Cases':
-                        idx_when_n_cases -= 1
+                elif title in ['Daily New Deaths']:
+                    ydata_cases = np.array(country_data[c]['Deaths']['data']).astype('float')
+                    idx_when_n_cases = np.abs(ydata_cases - align_input).argmin()
+                if title in ['Daily New Cases', 'Daily New Deaths']:
+                    idx_when_n_cases -= 1
 
                 xdata = xdata - idx_when_n_cases
 
@@ -595,7 +648,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                    marker={'color': colours[i]},
                                    line={'color': colours[i]},
                                    showlegend=True,
-                                   visible=False if title == 'Daily New Cases' else True,
+                                   visible=False if title in ['Daily New Cases', 'Daily New Deaths'] else True,
                                    name=label,
                                    yaxis='y1',
                                    legendgroup='group1', ))
@@ -611,12 +664,12 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                        mode='lines',
                                        line={'color': colours[i], 'dash': 'dash'},
                                        showlegend=False,
-                                       visible=False if title == 'Daily New Cases' else show_plot,
+                                       visible=False if title in ['Daily New Cases', 'Daily New Deaths'] else show_plot,
                                        name=fr'Model {c.upper():<10s}',
                                        yaxis='y1',
                                        legendgroup='group1', ))
 
-            if title in ['Daily New Cases']:
+            if title in ['Daily New Cases', 'Daily New Deaths'] :
                 figs.append(go.Bar(x=date_objects if not align_countries else xdata,
                                    y=ydata,
                                    hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in date_objects] if align_countries else '',
