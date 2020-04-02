@@ -306,6 +306,11 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
             html.H3(children='New Cases vs Total Cases', style={'textAlign': 'center', 'color': colors['text'],
                                                     'margin-top': '10px'}),
             dcc.Graph(id='new-vs-total-cases'),
+
+            html.H3(children='New Deaths vs Total Deaths', style={'textAlign': 'center', 'color': colors['text'],
+                                                                'margin-top': '10px'}),
+            dcc.Graph(id='new-vs-total-deaths'),
+
             html.Li(html.I(
                 "Caution should be applied when directly comparing the number of confirmed cases of each country. "
                 "Different countries have different testing rates, and may underestimate the number of cases "
@@ -313,14 +318,15 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                 style={'textAlign': 'left', 'color': colors['text']}),
             html.Li(html.I(
                 "The models assume exponential growth - social distancing, quarantining, herd immunity, "
-                "and other factors will slow down the predicted trajectories. "),
+                "and other factors will slow down the predicted trajectories. "
+                "Thus, predicting too far in the future is not recommended."),
                 style={'textAlign': 'left', 'color': colors['text']}),
             html.Li(html.I(
                 "Some countries do not have available data for the number of Active Cases. "),
                 style={'textAlign': 'left', 'color': colors['text']}),
             html.Li(html.I(
-                "The last plot is an informative way to compare how each country was increasing when they had "
-                "different numbers of total cases (each point is a different day); countries that fall below "
+                "The final two plots are an informative way to compare how each country was increasing when they had "
+                "different numbers of total cases/deaths (each point is a different day); countries that fall below "
                 "the general linear line on the log-log plot are reducing their growth rate of COVID-19 cases."),
                 style={'textAlign': 'left', 'color': colors['text']}),
         ], style={'width': '75%', 'display': 'inline-block', 'vertical-align': 'top', 'horizontal-align': 'center',
@@ -380,6 +386,7 @@ def update_align_options(normalise_by_pop):
                Output('active-plot', 'figure'),
                Output('daily-plot', 'figure'),
                Output('new-vs-total-cases', 'figure'),
+               Output('new-vs-total-deaths', 'figure'),
                Output('hidden-stored-data', 'children'),
                Output("loading-icon", "children"),],
               [Input('button-plot', 'n_clicks'),
@@ -470,6 +477,8 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                 ),
             ]
         }
+        # if normalise_by_pop:
+        #     layout_normal['yaxis']['tickformat'] = '%.2f'
 
         layout_daily_plot = copy.deepcopy(layout_normal)
         layout_daily_plot['updatemenus'].append(
@@ -623,56 +632,57 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
 
         out.append({'data': figs, 'layout': layout_out})
 
-    # Plot 'New Cases vs Total Cases'
-    fig_new_vs_total = []
-    for i, c in enumerate(country_names):
-        l = 7  # Number of days to look back
-        cases = np.array(country_data[c]['Cases']['data']).astype('float')
-        xdata = np.copy(cases[l:])
-        ydata = np.diff(cases)
-        len_ydata = len(ydata)
+    # Plot 'New Cases vs Total Cases' and 'New Deaths vs Total Deaths'
+    for title in ['Cases', 'Deaths']:
+        fig_new_vs_total = []
+        for i, c in enumerate(country_names):
+            l = 7  # Number of days to look back
+            cases = np.array(country_data[c][title]['data']).astype('float')
+            xdata = np.copy(cases[l:])
+            ydata = np.diff(cases)
+            len_ydata = len(ydata)
 
-        # Compute new cases over the past l days
-        ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len_ydata) if i <= (len_ydata - l)], axis=1)
+            # Compute new cases over the past l days
+            ydata = np.sum([np.array(ydata[i:i + l]) for i in range(len_ydata) if i <= (len_ydata - l)], axis=1)
 
-        dates = country_data[c]['Cases']['dates'][l:]
-        date_objects = []
-        for date in dates:
-            date_objects.append(datetime.datetime.strptime(date, '%Y-%m-%d').date())
-        date_objects = np.asarray(date_objects)
+            dates = country_data[c][title]['dates'][l:]
+            date_objects = []
+            for date in dates:
+                date_objects.append(datetime.datetime.strptime(date, '%Y-%m-%d').date())
+            date_objects = np.asarray(date_objects)
 
-        mask = xdata > 100
-        xdata = xdata[mask]
-        ydata = ydata[mask]
-        date_objects = date_objects[mask]
+            mask = xdata > 100 if title == 'Cases' else xdata > 10
+            xdata = xdata[mask]
+            ydata = ydata[mask]
+            date_objects = date_objects[mask]
 
+            if normalise_by_pop:
+                xdata = xdata / POPULATIONS[c] * 100
+                ydata = ydata / POPULATIONS[c] * 100
+
+            fig_new_vs_total.append(go.Scatter(x=xdata,
+                                               y=ydata,
+                                               hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in date_objects],
+                                               mode='lines+markers',
+                                               marker={'color': colours[i]},
+                                               line={'color': colours[i]},
+                                               showlegend=True,
+                                               name=fr'{c.upper():<10s}',
+                                               yaxis='y1',
+                                               legendgroup='group1', ))
         if normalise_by_pop:
-            xdata = xdata / POPULATIONS[c] * 100
-            ydata = ydata / POPULATIONS[c] * 100
-
-        fig_new_vs_total.append(go.Scatter(x=xdata,
-                                           y=ydata,
-                                           hovertext=[f"Date: {d.strftime('%d-%b-%Y')}" for d in date_objects],
-                                           mode='lines+markers',
-                                           marker={'color': colours[i]},
-                                           line={'color': colours[i]},
-                                           showlegend=True,
-                                           name=fr'{c.upper():<10s}',
-                                           yaxis='y1',
-                                           legendgroup='group1', ))
-    if normalise_by_pop:
-        yaxis_title = f'New Cases (% of population) per week (log scale)'  # {l} days'
-        xaxis_title = 'Total Cases (% of population) (log scale)'
-    else:
-        yaxis_title = f'New Cases per week'  # {l} days)'
-        xaxis_title = 'Total Cases'
-    layout_new_vs_total = {
-        'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
-        'xaxis': {'title': xaxis_title, 'type': 'log', 'showgrid': True},
-        'showlegend': True,
-        'margin': {'l': 70, 'b': 100, 't': 50, 'r': 0},
-    }
-    out.append({'data': fig_new_vs_total, 'layout': layout_new_vs_total})
+            yaxis_title = f'New {title} (% of population) per week (log scale)'  # {l} days'
+            xaxis_title = f'Total {title} (% of population) (log scale)'
+        else:
+            yaxis_title = f'New {title} per week'  # {l} days)'
+            xaxis_title = f'Total {title}'
+        layout_new_vs_total = {
+            'yaxis': {'title': yaxis_title, 'type': 'log', 'showgrid': True},
+            'xaxis': {'title': xaxis_title, 'type': 'log', 'showgrid': True},
+            'showlegend': True,
+            'margin': {'l': 70, 'b': 100, 't': 50, 'r': 0},
+        }
+        out.append({'data': fig_new_vs_total, 'layout': layout_new_vs_total})
 
     out.append(json.dumps(country_data))
     out.append(None)
