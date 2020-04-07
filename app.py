@@ -70,7 +70,6 @@ COUNTRY_LIST = ['world',
                 'lithuania',
                 'luxembourg',
                 'malaysia',
-                'malta',
                 'mexico',
                 'moldova',
                 'morocco',
@@ -106,7 +105,6 @@ COUNTRY_LIST = ['world',
                 'united arab emirates',
                 'ukraine',
                 'uruguay',
-                'vietnam',
                 ]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
@@ -139,7 +137,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     id=c_name,
                     options=[{'label': c_name.title() if c_name not in ['us', 'uk'] else c_name.upper(),
                               'value': c_name}],
-                    value=[c_name] if c_name in ('us', 'uk', 'italy') else [c_name],
+                    value=[c_name] if c_name in ('us', 'uk', 'italy') else [],
                     style={"margin-left": "15px", 'textAlign': 'left'},
                     inputStyle={"margin-right": "5px"})
                 for i, c_name in enumerate(COUNTRY_LIST)]),
