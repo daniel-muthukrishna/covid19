@@ -43,7 +43,6 @@ COUNTRY_LIST = ['world',
                 'chile',
                 'china',
                 'colombia',
-                'congo',
                 'costa rica',
                 'croatia',
                 'cyprus',
@@ -51,11 +50,8 @@ COUNTRY_LIST = ['world',
                 'denmark',
                 'dominican republic',
                 'ecuador',
-                'el salvador',
                 'egypt',
                 'estonia',
-                'faeroe islands',
-                'falkland islands',
                 'finland',
                 'greece',
                 'hong kong',
@@ -65,7 +61,6 @@ COUNTRY_LIST = ['world',
                 'indonesia',
                 'iraq',
                 'ireland',
-                'isle of man',
                 'israel',
                 'japan',
                 'jordan',
@@ -74,7 +69,6 @@ COUNTRY_LIST = ['world',
                 'lebanon',
                 'lithuania',
                 'luxembourg',
-                'macao',
                 'malaysia',
                 'malta',
                 'mexico',
@@ -87,7 +81,6 @@ COUNTRY_LIST = ['world',
                 'pakistan',
                 'palestine',
                 'panama',
-                'papua new guinea',
                 'peru',
                 'philippines',
                 'poland',
@@ -113,7 +106,8 @@ COUNTRY_LIST = ['world',
                 'united arab emirates',
                 'ukraine',
                 'uruguay',
-                'vietnam',]
+                'vietnam',
+                ]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
@@ -144,8 +138,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                 dcc.Checklist(
                     id=c_name,
                     options=[{'label': c_name.title() if c_name not in ['us', 'uk'] else c_name.upper(),
-                              'value': c_name.replace(' ', '-') if c_name not in WORLDOMETER_NAME else WORLDOMETER_NAME[c_name]}],
-                    value=[c_name] if c_name in ('us', 'uk', 'italy') else [],
+                              'value': c_name}],
+                    value=[c_name] if c_name in ('us', 'uk', 'italy') else [c_name],
                     style={"margin-left": "15px", 'textAlign': 'left'},
                     inputStyle={"margin-right": "5px"})
                 for i, c_name in enumerate(COUNTRY_LIST)]),
@@ -590,6 +584,7 @@ def update_plots(n_clicks, start_date, end_date, show_exponential, normalise_by_
                                legendgroup='group2', ))
 
         for i, c in enumerate(country_names):
+            print(c)
             if country_data[c] is None:
                 print("Cannot retrieve data from country:", c)
                 continue
