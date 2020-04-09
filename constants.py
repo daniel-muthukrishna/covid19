@@ -466,7 +466,7 @@ POPULATIONS = {
     'spain': 46754778,
     'sri lanka': 21413249,
     'st. vincent & grenadines': 110940,
-    'state of palestine': 5101414,
+    'palestine': 5101414,
     'sudan': 43849260,
     'suriname': 586632,
     'sweden': 10099265,
