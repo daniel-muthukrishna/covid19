@@ -114,13 +114,13 @@ app.index_string = """<!DOCTYPE html>
 <html>
     <head>
         <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-131327483-1"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162069366-1"></script>
         <script>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
 
-          gtag('config', 'UA-131327483-1');
+          gtag('config', 'UA-162069366-1');
         </script>
         {%metas%}
         <title>{%title%}</title>
