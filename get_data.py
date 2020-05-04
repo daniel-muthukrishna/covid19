@@ -48,6 +48,7 @@ COUNTRY_LIST_WORLDOMETER = ['world', 'afghanistan', 'albania', 'algeria', 'andor
 def get_data(country_name):
     worldometer_cname = country_name.replace(' ', '-') if country_name not in WORLDOMETER_NAME \
         else WORLDOMETER_NAME[country_name]
+
     if worldometer_cname in COUNTRY_LIST_WORLDOMETER:
         try:
             data = get_data_from_worldometer(worldometer_cname)
@@ -86,6 +87,17 @@ def get_data_from_api(country_name):
     return data
 
 
+def convert_dates(dates):
+    """
+    Convert array of dates in format "MMM DD" to "YYYY-M-DD"
+    """
+    for i, date in enumerate(dates):
+        month, day = date.split()
+        dates[i] = f"2020-{MONTHS_DICT[month]}-{day}"
+
+    return dates
+
+
 def get_data_from_worldometer(country_name):
     base_url = 'https://www.worldometers.info/coronavirus/country/'
     if country_name == 'world':
@@ -94,20 +106,17 @@ def get_data_from_worldometer(country_name):
         url = base_url + country_name
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
-    dates = str(webpage).split('categories: ')[1].split('\\n')[0].replace('[', '').replace(']', '').replace('"','').replace('},', '').replace('},', '').replace('  ', '').split(',')
-
-    # Convert dates
-    for i, date in enumerate(dates):
-        month, day = date.split()
-        dates[i] = f"2020-{MONTHS_DICT[month]}-{day}"
 
     titles = ['Cases', 'Deaths', 'Currently Infected']
     data = {}
-    for line in str(webpage).split('series: ')[1:]:
+    for line in str(webpage).replace('\\n', '').split('Highcharts.chart')[1:]:
         keys = line.split(': ')
 
         done = 0
         for k, key in enumerate(keys):
+            if 'categories' in key:
+                plot_dates = keys[k + 1].replace('[', '').split(']')[0].replace('"', '').split(',')
+                plot_dates = convert_dates(plot_dates)
             if 'name' in key:
                 name = keys[k + 1].replace("\\'", "").split(',')[0]
                 if name not in titles:
@@ -115,7 +124,7 @@ def get_data_from_worldometer(country_name):
                 done += 1
             if 'data' in key:
                 datum = keys[k + 1].replace('[', '').split(']')[0].split(',')
-                data[name] = {'dates': dates, 'data': datum }
+                data[name] = {'dates': plot_dates, 'data': datum }
                 done += 1
             if done == 2:
                 break
