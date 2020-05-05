@@ -461,7 +461,7 @@ POPULATIONS = {
     'solomon islands': 686884,
     'somalia': 15893222,
     'south africa': 59308690,
-    'south-korea': 51269185,
+    'south korea': 51269185,
     'south sudan': 11193725,
     'spain': 46754778,
     'sri lanka': 21413249,
