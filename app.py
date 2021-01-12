@@ -184,6 +184,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'font-fami
                     'margin-bottom': '15px',
                 }
             ),
+            html.P(["This App is superseded by the more comprehensive ", html.A('LowHighCovid ', href='https://lowhighcovid.herokuapp.com/covid-data'),
+                    "App. \nIt includes modelling and educational resources as well as data on vaccinations by country."],
+                   style={'textAlign': 'center', 'color': colors['text'], "margin-bottom": "40px"}),
             html.Hr(),
             html.Div([
                 html.I("Fit exponential from: ",
